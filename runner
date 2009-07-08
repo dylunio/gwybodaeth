@@ -3,36 +3,49 @@
 use warnings;
 use strict;
 use lib '/home/imp25/urop/perl/gwybodaeth';
+use lib '/home/imp25/urop/perl/gwybodaeth/Parsers';
+
+my $data = shift;
+my $map = shift;
 
 use Read;
+use N3;
 
 my $file = Read->new();
 
-my $len = $file->get_file_data('Main');
+my $len;
+if (-f $data) {
+    $len = $file->get_file_data($data);
+} else {
+    $len = $file->get_url_data($data);
+}
 
 die "Empty file." if ($len < 1);
 
-foreach ($file->get_input_data) {
-    print "$_";
-}
-
 my $url = Read->new();
-$len = $url->get_url_map("http://www.google.com");
+
+if (-f $map) {
+    $len = $file->get_file_map($map);
+} else {
+    $len = $file->get_url_map($map);
+}
 
 die "Empty site." if ($len < 1);
 
-foreach ($url->get_input_data) {
-    print "$_";
-}
+my @data = $file->get_input_map;
 
-foreach ($file->get_input_map) {
-    print "$_";
-}
+my $parser = N3->new();
 
-print "\n";
+my $map_triples = $parser->parse(@data);
 
-use RDFWriter;
+use CSV;
 
-RDFWriter->open_tag("href");
+my $csv = CSV->new();
 
-RDFWriter->close_tag();
+my $csv_data_ref = $csv->parse($file->get_input_data);
+
+use Write;
+
+my $write = Write->new();
+
+$write->write_rdf($map_triples, $csv_data_ref);

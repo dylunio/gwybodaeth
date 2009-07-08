@@ -6,8 +6,9 @@ use strict;
 package Read;
 
 # Methods for reading in data from either a file or URL;
-
-use HTTP::Lite;
+#use HTTP::Lite;
+use LWP::UserAgent;
+use HTTP::Request;
 
 my @input_data;
 my @input_map;
@@ -38,17 +39,11 @@ sub get_file {
 sub get_url {
     my($self, $url) = @_;
 
-    # Make sure we have a '/' at the end of the URL.
-    # Without this HTTP::Lite doesn't work
-    unless ($url =~ m|/$|) {
-        $url =~ s|(\S+)$|$1/|;
-    }
-   
-    my $http = new HTTP::Lite;
-    my $req = $http->request("$url")
-        or die "Unable to get document: $!";
+    my $browser = LWP::UserAgent->new(); 
+    my $req = HTTP::Request->new(GET => $url);
+    my $res = $browser->request($req);
 
-    return split /\n/, $http->body();
+    return split /[\cM\cJ]+/, $res->content; # split content on line endings
 }
 
 sub get_file_data {
