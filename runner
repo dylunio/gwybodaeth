@@ -1,0 +1,38 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use lib '/home/imp25/urop/perl/gwybodaeth';
+
+use Read;
+
+my $file = Read->new();
+
+my $len = $file->get_file_data('Main');
+
+die "Empty file." if ($len < 1);
+
+foreach ($file->get_input_data) {
+    print "$_";
+}
+
+my $url = Read->new();
+$len = $url->get_url_map("http://www.google.com");
+
+die "Empty site." if ($len < 1);
+
+foreach ($url->get_input_data) {
+    print "$_";
+}
+
+foreach ($file->get_input_map) {
+    print "$_";
+}
+
+print "\n";
+
+use RDFWriter;
+
+RDFWriter->open_tag("href");
+
+RDFWriter->close_tag();
