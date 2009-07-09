@@ -25,14 +25,14 @@ die "Empty file." if ($len < 1);
 my $url = Read->new();
 
 if (-f $map) {
-    $len = $file->get_file_map($map);
+    $len = $file->get_file_data($map);
 } else {
-    $len = $file->get_url_map($map);
+    $len = $file->get_url_data($map);
 }
 
 die "Empty site." if ($len < 1);
 
-my @data = $file->get_input_map;
+my @data = $file->get_input_data;
 
 my $parser = N3->new();
 
