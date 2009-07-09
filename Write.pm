@@ -16,32 +16,62 @@ sub write_rdf {
     my $triples = shift;
     my $data = shift; 
 
-    use YAML;
+    # This loop makes sure that we give the data
+    # interpreter only the data we want and not 
+    # any metadata.
+    my @pure_data;
+    for my $row (0..$#{ $data }) {
+        if (@{$data}[$row]->[0] =~ /start\s+row/i) {
+            my $start = int @{$data}[$row]->[1];
+            for ($start..$#{ $data }) {
+                push @pure_data, @{ $data }[$_];
+            }
+            last;
+        }
+    }        
 
-    print Dump($triples);
-    print Dump($data);
+    $self->_write_meta_data();
 
-    for my $row (@$data) {
+    for my $row (@pure_data) {
         for my $triple_key ( keys %{ $triples } ) {
             print "<$triple_key>\n";
-            for my $verb_key ( @{ $triples->{$triple_key}{'predicates'} } ) {
-                print "<$verb_key>";
-                print $self->extract_field(@{$row}[1], $triples->{$triple_key}{'obj'}[1]);
-                print "</$verb_key>\n";
+            my @verbs = @{ $triples->{$triple_key}{'predicates'} };
+            for my $indx (0..$#verbs ) {
+                print "<$verbs[$indx]>";
+                print $self->_extract_field($row, 
+                                $triples->{$triple_key}{'obj'}[$indx]);
+                print "</$verbs[$indx]>\n";
             }
             print "</$triple_key>\n";
         }
     }
+    print "</rdf:RDF>\n"
 }
 
-sub extract_field {
+sub _extract_field {
     my $self = shift;
     my $data = shift;
     my $field = shift;
 
-    if ($field =~ m/ex:\$(\d+)/) {
+    if ($field =~ m/Ex:\$(\d+)/) {
         my $field_num = int ($1 -1); # we subtract 1 as arrays start at 0 not 1
         return @{$data}[$field_num];
     }
+}
+
+sub _write_meta_data {
+    my $self = shift;
+
+    my $namespace = NamespaceManager->new();
+    my $name_hash = $namespace->get_namespace_hash();
+    
+
+    print "<?xml version=\"1.0\"?>\n<rdf:RDF\n";
+    for my $keys (keys %{ $name_hash }) {
+        (my $key = $keys) =~ s/:$//;
+        next if ($key eq "");
+        print "xmlns:$key=\"" . $name_hash->{$keys} . "\"\n";
+    }
+    print ">\n";
 }
 1;

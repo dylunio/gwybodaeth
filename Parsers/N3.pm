@@ -3,6 +3,10 @@
 use warnings;
 use strict;
 
+use lib './Parsers';
+
+use NamespaceManager;
+
 package N3;
 
 sub new {
@@ -15,15 +19,20 @@ sub parse {
     my $self = shift;
     my @data = @_;
 
-    my %prefix;
+#    my %prefix;
     my %triples;
     
     my $subject;
 
+    my $namespace = NamespaceManager->new();
+    $namespace->map_namespace(\@data);
+
     foreach my $line (@data) {
+
         # Create a hash of prefixes to full attributes
-        if ($line =~ m/^\@prefix\s+(\S*:)\s+(\S+)\s+./) {
-            $prefix{$1} = $2;
+        if ($line =~ m/^\@prefix\s+(\S*:)\s+<(\S+)>\s+./) {
+            # we must remove any <> chars around the value
+#            $prefix{$1} = $2;
             next;
         }
         # Store the subject
@@ -50,10 +59,10 @@ sub parse {
 
     use YAML;
 
-    print Dump(\%prefix);
+    #print Dump(\%prefix);
     print Dump(\%triples);
 
+    #return { triples => \%triples, prefix => \%prefix };
     return \%triples;
-
 }
 1;

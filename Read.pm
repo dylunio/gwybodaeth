@@ -43,8 +43,8 @@ sub get_url_data {
     my $req = HTTP::Request->new(GET => $url);
     my $res = $browser->request($req);
 
-    # split content on line endings
-    @{ $self->{Data} } = split /[\cM\cJ]+/, $res->content; 
+    # split content on line endings - should work with the different formats
+    @{ $self->{Data} } = split /\012\015?|\015\012?/, $res->content; 
 
     return int $self->{Data};
 }

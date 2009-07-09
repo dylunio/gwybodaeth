@@ -11,28 +11,28 @@ my $map = shift;
 use Read;
 use N3;
 
-my $file = Read->new();
+my $input = Read->new();
 
 my $len;
 if (-f $data) {
-    $len = $file->get_file_data($data);
+    $len = $input->get_file_data($data);
 } else {
-    $len = $file->get_url_data($data);
+    $len = $input->get_url_data($data);
 }
 
 die "Empty file." if ($len < 1);
 
-my $url = Read->new();
+my $mapping = Read->new();
 
 if (-f $map) {
-    $len = $file->get_file_data($map);
+    $len = $mapping->get_file_data($map);
 } else {
-    $len = $file->get_url_data($map);
+    $len = $mapping->get_url_data($map);
 }
 
 die "Empty site." if ($len < 1);
 
-my @data = $file->get_input_data;
+my @data = $mapping->get_input_data;
 
 my $parser = N3->new();
 
@@ -42,10 +42,11 @@ use CSV;
 
 my $csv = CSV->new();
 
-my $csv_data_ref = $csv->parse($file->get_input_data);
+my $csv_data_ref = $csv->parse($input->get_input_data);
 
 use Write;
 
 my $write = Write->new();
 
-$write->write_rdf($map_triples, $csv_data_ref);
+$write->write_rdf($map_triples,
+                  $csv_data_ref);
