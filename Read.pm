@@ -18,6 +18,7 @@ sub new {
     my @data;
     $self->{Data} = \@data;
     bless $self, $class;
+    return $self;
 }
 
 # Open a file and store its contents

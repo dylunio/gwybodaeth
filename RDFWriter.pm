@@ -13,6 +13,9 @@ sub open_tag {
 
     print "<$tag>\n";
     push @open_tags, $tag;
+    
+    # returns number of open tags
+    return int @open_tags;
 }
 
 # Closes the stated tag or the last tag added to @open_tags
@@ -23,7 +26,9 @@ sub close_tag {
         $tag = pop @open_tags;
     }
 
-    print "</$tag>\n"
+    print "</$tag>\n";
+    
+    return 1;
 }
 
 # Goes through the @open_tags array closing tags in the right order
@@ -34,6 +39,7 @@ sub close_all_tags {
         my $tag = pop @open_tags;
         print "</$tag>";
     }
+    return 1;
 }
 
 1; 

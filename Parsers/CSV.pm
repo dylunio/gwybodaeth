@@ -8,12 +8,12 @@ package CSV;
 sub new {
     my $class = shift;
     my $self = { };
-    bless \$self, $class;
+    bless $self, $class;
+    return $self;
 }
 
 sub parse {
-    my $self = shift;
-    my @data = @_;
+    my($self, @data) = @_;
 
     my @rows;
     my $i;

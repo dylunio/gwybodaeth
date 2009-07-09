@@ -8,7 +8,8 @@ package Write;
 sub new {
     my $class = shift;
     my $self = { };
-    bless \$self, $class;
+    bless $self, $class;
+    return $self;
 }
 
 sub write_rdf {
@@ -45,7 +46,9 @@ sub write_rdf {
             print "</$triple_key>\n";
         }
     }
-    print "</rdf:RDF>\n"
+    print "</rdf:RDF>\n";
+
+    return 1;
 }
 
 sub _extract_field {
@@ -57,6 +60,8 @@ sub _extract_field {
         my $field_num = int ($1 -1); # we subtract 1 as arrays start at 0 not 1
         return @{$data}[$field_num];
     }
+    
+    return 1;
 }
 
 sub _write_meta_data {
@@ -73,5 +78,7 @@ sub _write_meta_data {
         print "xmlns:$key=\"" . $name_hash->{$keys} . "\"\n";
     }
     print ">\n";
+    
+    return 1;
 }
 1;

@@ -24,6 +24,7 @@ sub map_namespace {
             $namespace{$1} = $2;
         }
     }
+    return $self->get_namespace_hash();
 }
 
 sub get_namespace_hash {
