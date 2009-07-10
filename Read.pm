@@ -28,9 +28,13 @@ sub get_file_data {
 
     open my $fh, q{<}, $file or die "Couldn't open $file: $!";
 
-    $self->{Data} = <$fh>;
+    @{ $self->{Data} }= (<$fh>);
 
     close $fh;
+    
+#    use YAML;
+#
+#    print Dump($self->{Data});
 
     return int $self->{Data};
 }

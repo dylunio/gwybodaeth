@@ -4,8 +4,10 @@ use warnings;
 use strict;
 
 use lib './Parsers';
+use lib '.';
 
 use NamespaceManager;
+use Triples;
 
 package N3;
 
@@ -20,7 +22,7 @@ sub parse {
     my($self, @data) = @_;
 
 #    my %prefix;
-    my %triples;
+    my $triples = Triples->new();
     
     my $subject;
 
@@ -28,41 +30,26 @@ sub parse {
     $namespace->map_namespace(\@data);
 
     foreach my $line (@data) {
-
-        # Create a hash of prefixes to full attributes
+    
+        # If prefix line
         if ($line =~ m/^\@prefix\s+(\S*:)\s+<(\S+)>\s+./) {
-            # we must remove any <> chars around the value
-#            $prefix{$1} = $2;
+            # Skip to the next line
             next;
         }
         # Store the subject
-        if ($line =~ m/^\[\S*\]\s+a\s+(\S+)\s*;/) {
+        if ($line =~ m/^\[?\S*\]?\s+a\s+(\S+)\s*;/) {
             $subject = $1;
-            my @objs = ();
-            my @predicates = ();
-            my %subject_data = ( 
-                'obj' => \@objs, 
-                'predicates' => \@predicates,
-            );
-            $triples{$subject} = \%subject_data;
             next;
         }
         
         if ($line =~ m/^\s+(\S+)\s+(\S+)\s*[;.]$/) {
             my $predicate = $1;
-            my $objects = $2;
+            my $object = $2;
 
-            push @{ $triples{$subject}{'obj'} }, $objects;
-            push @{ $triples{$subject}{'predicates'} }, $predicate;
+            $triples->store_triple($subject, $predicate, $object);
         }
     }
 
-    use YAML;
-
-    #print Dump(\%prefix);
-    print Dump(\%triples);
-
-    #return { triples => \%triples, prefix => \%prefix };
-    return \%triples;
+    return $triples;
 }
 1;

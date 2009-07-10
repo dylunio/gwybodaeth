@@ -3,6 +3,10 @@
 use warnings;
 use strict;
 
+use lib './Parsers';
+
+use Escape;
+
 package Write;
 
 sub new {
@@ -29,18 +33,25 @@ sub write_rdf {
             }
             last;
         }
-    }        
+    }       
+
+    if (!@pure_data) {
+        @pure_data = @{ $data };
+    } 
 
     $self->_write_meta_data();
+
+    my $esc = Escape->new();
 
     for my $row (@pure_data) {
         for my $triple_key ( keys %{ $triples } ) {
             print "<$triple_key>\n";
-            my @verbs = @{ $triples->{$triple_key}{'predicates'} };
+            my @verbs = @{ $triples->{$triple_key}{'predicate'} };
             for my $indx (0..$#verbs ) {
-                print "<$verbs[$indx]>";
-                print $self->_extract_field($row, 
-                                $triples->{$triple_key}{'obj'}[$indx]);
+                print "  <$verbs[$indx]>";
+                print $esc->escape(
+                        $self->_extract_field($row, 
+                          $triples->{$triple_key}{'obj'}[$indx]));
                 print "</$verbs[$indx]>\n";
             }
             print "</$triple_key>\n";
@@ -58,10 +69,12 @@ sub _extract_field {
 
     if ($field =~ m/Ex:\$(\d+)/) {
         my $field_num = int ($1 -1); # we subtract 1 as arrays start at 0 not 1
-        return @{$data}[$field_num];
+        if( @{$data}[$field_num] ) {
+            return @{ $data }[$field_num];
+        }
     }
     
-    return 1;
+    return "";
 }
 
 sub _write_meta_data {
