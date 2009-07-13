@@ -41,21 +41,8 @@ sub write_rdf {
 
     $self->_write_meta_data();
 
-    my $esc = Escape->new();
-
-    for my $row (@pure_data) {
-        for my $triple_key ( keys %{ $triples } ) {
-            print "<$triple_key>\n";
-            my @verbs = @{ $triples->{$triple_key}{'predicate'} };
-            for my $indx (0..$#verbs ) {
-                print "  <$verbs[$indx]>";
-                print $esc->escape(
-                        $self->_extract_field($row, 
-                          $triples->{$triple_key}{'obj'}[$indx]));
-                print "</$verbs[$indx]>\n";
-            }
-            print "</$triple_key>\n";
-        }
+    for my $row (@{ $data }) {
+        $self->_write_triples($row, $triples);
     }
     print "</rdf:RDF>\n";
 
@@ -94,4 +81,34 @@ sub _write_meta_data {
     
     return 1;
 }
+
+sub _write_triples {
+    my($self, $row, $triples) = @_;
+    
+    my $esc = Escape->new();
+
+    for my $triple_key ( keys %{ $triples } ) {
+        print "<$triple_key>\n";
+        my @verbs = @{ $triples->{$triple_key}{'predicate'} };
+        for my $indx (0..$#verbs ) {
+            print "  <$verbs[$indx]>";
+            $self->_get_object($row,
+                               $triples->{$triple_key}{'obj'}[$indx]);
+            print "</$verbs[$indx]>\n";
+        }
+        print "</$triple_key>\n";
+    }
+}
+
+sub _get_object {
+    my($self, $row, $object) = @_;
+
+    if (ref($object) eq('Triples')) {
+        print "\n    ";
+        $self->_write_triples($row, $object);
+    } else {
+        my $esc = Escape->new();
+        print $esc->escape($self->_extract_field($row, $object));
+    }
+} 
 1;
