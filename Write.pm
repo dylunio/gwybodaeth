@@ -41,7 +41,7 @@ sub write_rdf {
 
     $self->_write_meta_data();
 
-    for my $row (@{ $data }) {
+    for my $row (@pure_data) {
         $self->_write_triples($row, $triples);
     }
     print "</rdf:RDF>\n";
@@ -54,14 +54,46 @@ sub _extract_field {
     my $data = shift;
     my $field = shift;
 
-    if ($field =~ m/Ex:\$(\d+)/) {
+    if ($field =~ m/^\"Ex:\$(\d+)\"$/) {
         my $field_num = int ($1 -1); # we subtract 1 as arrays start at 0 not 1
         if( @{$data}[$field_num] ) {
             return @{ $data }[$field_num];
         }
+    } elsif ($field =~ m/^\"Ex:.*\+/) {
+        return $self->_cat_field($data, $field);
     }
     
     return "";
+}
+
+# Concatinate fields
+sub _cat_field {
+    my $self = shift;
+    my $data = shift;
+    (my $field = shift) =~ s/Ex://;
+
+    my $string = "";
+
+    my @values = split /\+/, $field;
+
+    for my $val (@values) {
+        # Extract ${num} variables from data
+        if ($val =~ m/\$(\d+)/) {
+            my $field_num = int ($1 -1);
+            if (@{ $data }[$field_num]) {
+                $string .= @{ $data }[$field_num];
+            }
+        }
+        # Put a space; 
+        elsif ($val =~ m/\'\s*\'/) {
+            $string .= " ";
+        } 
+        # Print a literal
+        else {
+            $string .= $val;
+        }
+    }
+    return $string;
 }
 
 sub _write_meta_data {
@@ -91,7 +123,7 @@ sub _write_triples {
         print "<$triple_key>\n";
         my @verbs = @{ $triples->{$triple_key}{'predicate'} };
         for my $indx (0..$#verbs ) {
-            print "  <$verbs[$indx]>";
+            print "<$verbs[$indx]>";
             $self->_get_object($row,
                                $triples->{$triple_key}{'obj'}[$indx]);
             print "</$verbs[$indx]>\n";
@@ -103,8 +135,8 @@ sub _write_triples {
 sub _get_object {
     my($self, $row, $object) = @_;
 
-    if (ref($object) eq('Triples')) {
-        print "\n    ";
+    if (eval {$object->isa('Triples')}) {
+        print "\n";
         $self->_write_triples($row, $object);
     } else {
         my $esc = Escape->new();

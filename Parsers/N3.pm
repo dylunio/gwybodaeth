@@ -32,7 +32,7 @@ sub parse {
     my $tokenized = $self->_tokenize(\@data);
 
     $self->_parse_n3($tokenized);
-
+    
     return $triples;
 }
 
@@ -60,7 +60,8 @@ sub _parse_n3 {
         # Shorthands for common predicates
         if ($token =~ m/^a$/) {
             # Should return a reference to a Triples type
-            return $self->_parse_triple($data, $indx);
+            $self->_parse_triple($data, $indx);
+            next;
         }
     
         if ($token =~ m/^\=$/) {
@@ -104,7 +105,7 @@ sub _parse_n3 {
         }
          
     }
-    return 1;
+    return $triples;
 }
 
 # Takes a reference to the input data as a parameter.
@@ -133,7 +134,10 @@ sub _tokenize_clean {
         
         # If a token begins with '<' but doesn't end with '>'
         # then the token has been split up.
-        if (${$data}[$i] =~ /^\</ && ${$data}[$i] =~ /[^\>]$/) {
+        if ((${$data}[$i] =~ /^\</ && ${$data}[$i] =~ /[^\>]$/)||
+            # If the token begins but doesn't end with " the token may
+            # have been split up 
+            (${$data}[$i] =~ /^\"/ && ${$data}[$i] =~ /[^\"]$/)) {
             
             # Concatinate the next line to the current
             # partial token. 
@@ -179,6 +183,7 @@ sub _parse_triple {
     if ($self->_next_token($data, $index) eq ';') {
         $self->_get_verb_and_object($data, $index, $subject, $triples)
     }
+    return 1;
 }
 
 sub _get_verb_and_object {
@@ -187,7 +192,6 @@ sub _get_verb_and_object {
     ++$index; # to get past the ';' char
 
     my $verb = ${ $data }[++$index];
-    #my $object = ${ $data }[++$index];
     my $object = $self->_get_object($data, ++$index);
 
     $triple->store_triple($subject, $verb, $object);
@@ -201,7 +205,9 @@ sub _get_verb_and_object {
         return $index;
     } else {
         # something went wrong?
+        return 0;
     }
+    return 1;
 }
 
 sub _get_object {
