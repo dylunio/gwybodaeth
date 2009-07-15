@@ -4,6 +4,8 @@ use warnings;
 use strict;
 
 package Escape;
+
+use Carp qw(croak);
 {
 
 sub new {
@@ -14,7 +16,7 @@ sub new {
 }
 
 sub escape {
-    my $self = shift;
+    ref(my $self = shift) or croak "instance variable needed";
     my $string = shift;
 
     # escape '&' chars.

@@ -3,11 +3,13 @@
 use warnings;
 use strict;
 
+
 package Read;
 
 # Methods for reading in data from either a file or URL;
 use LWP::UserAgent;
 use HTTP::Request;
+use Carp qw(croak);
 
 my @input_data;
 my @input_map;
@@ -24,7 +26,8 @@ sub new {
 # Open a file and store its contents
 # Returns length of file data
 sub get_file_data {
-    my($self, $file) = @_;
+    ref(my $self = shift) or croak "instance variable needed";
+    my $file = shift;
 
     open my $fh, q{<}, $file or die "Couldn't open $file: $!";
 
@@ -32,10 +35,6 @@ sub get_file_data {
 
     close $fh;
     
-#    use YAML;
-#
-#    print Dump($self->{Data});
-
     return int $self->{Data};
 }
 
@@ -43,6 +42,8 @@ sub get_file_data {
 # Returns length of URL data
 sub get_url_data {
     my($self, $url) = @_;
+
+    ref($self) or croak "instance variable needed";
 
     my $browser = LWP::UserAgent->new(); 
     my $req = HTTP::Request->new(GET => $url);
@@ -56,7 +57,7 @@ sub get_url_data {
 
 # Data return methods:
 sub get_input_data {
-    my $self = shift;
+    ref(my $self = shift) or croak "instance variable needed";
     return @{ $self->{Data} };
 }
 

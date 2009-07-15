@@ -3,13 +3,15 @@
 use warnings;
 use strict;
 
-use lib './Parsers';
+use lib 'Parsers';
 use lib '.';
 
 use NamespaceManager;
 use Triples;
 
 package N3;
+
+use Carp qw(croak);
 
 my $triples = Triples->new();
 my $functions = {};
@@ -24,6 +26,8 @@ sub new {
 sub parse {
     my($self, @data) = @_;
 
+    ref($self) or croak "instance variable needed";
+
     my $subject;
 
     # Record the namespaces
@@ -34,8 +38,9 @@ sub parse {
 
     $self->_parse_n3($tokenized);
 
-    use YAML;
-    #print Dump($triples);    
+    #$self->_populate_func($triples) or croak "function population went wrong!";
+    $self->_parse_triplestore($triples) 
+        or croak "function population went wrong";
 
     return $triples;
 }
@@ -93,8 +98,6 @@ sub _parse_n3 {
                 next;
             } else {
                 $self->_record_func($data, $indx);
-                use YAML;
-                #print Dump($functions);
                 while((my $tok=$self->_next_token($data,$indx)) =~ /[^\.]/) {
                     ++$indx;
                 } 
@@ -108,7 +111,10 @@ sub _parse_n3 {
                 next;
             }
             # logic
-            next;
+            while((my $tok=$self->_next_token($data,$indx)) =~ /[^\]]/) {
+                ++$indx;
+            } 
+            return $self->_parse_n3($data,$indx);
         }
 
         if ($token =~ m/\]/) {
@@ -154,8 +160,8 @@ sub _tokenize_clean {
         
         next if (not defined ${ $data }[$i]);
         
-        # If a token begins with '<' but doesn't end with '>'
-        # then the token has been split up.
+            # If a token begins with '<' but doesn't end with '>'
+            # then the token has been split up.
         if ((${$data}[$i] =~ /^\</ && ${$data}[$i] =~ /[^\>]$/)||
             # If the token begins but doesn't end with " the token may
             # have been split up 
@@ -176,7 +182,7 @@ sub _tokenize_clean {
             # list.
             delete ${ $data }[$#{ $data }];
 
-            redo; # try again incase the token is split onto more than 2 lines
+            redo; # try again in case the token is split onto more than 2 lines
         }
     }
     return $data;
@@ -215,14 +221,6 @@ sub _get_verb_and_object {
 
     my $verb = ${ $data }[++$index];
     my $object = $self->_get_object($data, ++$index);
-
-    # Substitute any calls to functions with the function
-    # itself.
-    for my $key (keys %{ $functions }) {
-        if ($key eq $object) {
-            $object = $functions->{$key};
-        }
-    }
 
     $triple->store_triple($subject, $verb, $object);
     
@@ -273,6 +271,7 @@ sub _get_nested_triple {
     return $nest_triple;
 }
 
+# Store a defined function in a hash
 sub _record_func {
     my($self, $data, $index) = @_;
 
@@ -282,5 +281,49 @@ sub _record_func {
 
     $functions->{$func_name} = $func_triple;
     return $index;
+}
+
+# Parse the main triples hash so that functions are
+# placed where they are called.
+sub _parse_triplestore {
+    my $self = shift;
+    my $triple = shift;
+
+    if (defined($functions)) {
+        $self->_parse_functions($functions) 
+            or croak "Unable to parse functions";
+    }
+
+    return $self->_populate_func($triple);
+}
+
+# Interface to _populate_func for the hash of functions
+sub _parse_functions {
+    my $self = shift;
+    my $func_hash = shift; # a reference to the function hash
+
+    for my $key (%{ $func_hash }) {
+        $self->_populate_func($func_hash->{$key});
+    }
+    return 1;
+}
+
+# Populate any function calls with the triple store they define.
+sub _populate_func {
+    my $self = shift;
+    my $triple = shift;
+
+    for my $tkey (keys %{ $triple }) {
+        for my $fkey ( keys %{ $functions } ) {
+            for my $i (0..$#{ $triple->{$tkey}{'obj'} }) {
+                my $obj = $triple->{$tkey}{'obj'}[$i];
+                if ($obj eq $fkey) {
+                    $triple->{$tkey}{'obj'}[$i] = $functions->{$fkey};
+                    $self->_populate_func($triple);
+                }
+            }
+        }
+    }
+    return 1;
 }
 1;

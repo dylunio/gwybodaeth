@@ -4,6 +4,8 @@ use warnings;
 use strict;
 
 package Triples;
+
+use Carp qw(croak);
 {
 
     sub new {
@@ -16,7 +18,7 @@ package Triples;
     # Stores the triple and returns a reference to itself    
     # Expects ($sbject, $predicate, $object) as parameters
     sub store_triple {
-        my $self    = shift;
+        ref(my $self    = shift) or croak "instance variable needed";
 
         my $subject     = shift;
         my $predicate   = shift;

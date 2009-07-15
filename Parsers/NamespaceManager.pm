@@ -3,7 +3,10 @@
 use warnings;
 use strict;
 
+
 package NamespaceManager;
+
+use Carp qw(croak);
 
 # A hash to store all the namespaces
 my %namespace;
@@ -16,7 +19,7 @@ sub new {
 }
 
 sub map_namespace {
-    my $self = shift;
+    ref(my $self = shift) or croak "instance variable needed";
     my $data = shift;   # A referece to the data
 
     for my $line (@{ $data }) {
@@ -28,7 +31,7 @@ sub map_namespace {
 }
 
 sub get_namespace_hash {
-    my $self = shift;
+    ref(my $self = shift) or croak "instance variable needed";
 
     return \%namespace;
 }

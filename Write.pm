@@ -3,11 +3,13 @@
 use warnings;
 use strict;
 
-use lib './Parsers';
+use lib 'Parsers';
 
 use Escape;
 
 package Write;
+
+use Carp qw(croak);
 
 sub new {
     my $class = shift;
@@ -17,7 +19,7 @@ sub new {
 }
 
 sub write_rdf {
-    my $self = shift;
+    ref(my $self = shift) or croak "instance variable needed";
     my $triples = shift;
     my $data = shift; 
 

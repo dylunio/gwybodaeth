@@ -5,6 +5,8 @@ use strict;
 
 package CSV;
 
+use Carp qw(croak);
+
 sub new {
     my $class = shift;
     my $self = { };
@@ -15,6 +17,8 @@ sub new {
 sub parse {
     my($self, @data) = @_;
 
+    ref($self) or croak "instance variable needed";
+
     my @rows;
     my $i;
     
@@ -22,10 +26,6 @@ sub parse {
         my @fields = split ',', $_;
         $rows[$i++] = \@fields;
     }
-
-    use YAML;
-
-    #print Dump(@rows);
 
     return \@rows;
 } 
