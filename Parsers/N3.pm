@@ -12,6 +12,7 @@ use Triples;
 package N3;
 
 my $triples = Triples->new();
+my $functions = {};
 
 sub new {
     my $class = shift;
@@ -32,7 +33,10 @@ sub parse {
     my $tokenized = $self->_tokenize(\@data);
 
     $self->_parse_n3($tokenized);
-    
+
+    use YAML;
+    #print Dump($triples);    
+
     return $triples;
 }
 
@@ -40,8 +44,9 @@ sub parse {
 sub _parse_n3 {
     my $self = shift;
     my $data = shift;
+    my $index_start = shift || 0;
 
-    for my $indx (0..$#{ $data } ) {
+    for my $indx ($index_start..$#{ $data } ) {
         my $token = ${ $data }[$indx];
         my $next_token = ${ $data }[$indx+1 % $#{ $data }];
 
@@ -80,9 +85,26 @@ sub _parse_n3 {
         }
         # end of predicate shorthands
 
+        if ($token =~ m/\<\s*Ex:.*\>/) {
+            # record the next block as a 'function'
+            if ($next_token =~ m/[.;]/) {
+                # This is the call to the function
+                # not its defenition
+                next;
+            } else {
+                $self->_record_func($data, $indx);
+                use YAML;
+                #print Dump($functions);
+                while((my $tok=$self->_next_token($data,$indx)) =~ /[^\.]/) {
+                    ++$indx;
+                } 
+                return $self->_parse_n3($data,$indx);
+            }
+        }        
+
         if ($token =~ m/\[/) {
             if ($token =~ m/\[\]/) {
-                #logic specific to 'something' braket operator
+                #logic specific to 'something' bracket operator
                 next;
             }
             # logic
@@ -194,6 +216,14 @@ sub _get_verb_and_object {
     my $verb = ${ $data }[++$index];
     my $object = $self->_get_object($data, ++$index);
 
+    # Substitute any calls to functions with the function
+    # itself.
+    for my $key (keys %{ $functions }) {
+        if ($key eq $object) {
+            $object = $functions->{$key};
+        }
+    }
+
     $triple->store_triple($subject, $verb, $object);
     
     my $next_token = $self->_next_token($data, $index);
@@ -241,5 +271,16 @@ sub _get_nested_triple {
                                     $nest_triple);
     }
     return $nest_triple;
+}
+
+sub _record_func {
+    my($self, $data, $index) = @_;
+
+    my $func_name = ${ $data }[$index];
+
+    my $func_triple = $self->_get_nested_triple($data, $index);
+
+    $functions->{$func_name} = $func_triple;
+    return $index;
 }
 1;

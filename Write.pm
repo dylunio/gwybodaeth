@@ -54,16 +54,21 @@ sub _extract_field {
     my $data = shift;
     my $field = shift;
 
+    # The object is a specific field
     if ($field =~ m/^\"Ex:\$(\d+)\"$/) {
         my $field_num = int ($1 -1); # we subtract 1 as arrays start at 0 not 1
         if( @{$data}[$field_num] ) {
             return @{ $data }[$field_num];
         }
-    } elsif ($field =~ m/^\"Ex:.*\+/) {
+    
+    }
+    # The object is a concatination of fields 
+    elsif ($field =~ m/^\"Ex:.*\+/) {
         return $self->_cat_field($data, $field);
     }
     
-    return "";
+    # If it doesn't match either of the above, allow it to be a bareword field
+    return "$field";
 }
 
 # Concatinate fields
