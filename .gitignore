@@ -1,0 +1,4 @@
+# Ignore vim backup files
+.*.swp
+office*.N3*
+office*.csv*

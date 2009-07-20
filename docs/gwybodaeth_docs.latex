@@ -1,0 +1,126 @@
+\documentclass[a4paper,12pt]{article}
+
+\title{gwybodaeth Documentation}
+\author{Iestyn Pryce}
+
+\include{vc}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+Revision: \VCRevision
+\end{center}
+
+\section{Usage}
+
+\textbf{gwybodaeth} is a set of Perl classes for convesion of data into RDF. It can be either used from a command line tool or via a CGI web
+script. 
+
+\subsection{Command Line}
+The current command line tool takes two arguments, the first being a URL
+or path to the data file, the second being a URL or path to the mapping file:
+
+\begin{verbatim}
+./gwyboadaeth data1.csv dataMap1.N3
+\end{verbatim}
+\begin{verbatim}
+./gwyboadaeth http://foo.bar.com/data1.csv http://foo.bar.com/dataMap1.N3
+\end{verbatim}
+
+\subsection{CGI}
+In the URL \verb!src! is used to assign the data source and \verb!map! is used
+to assign the map source. The CGI script currently only works with data and maps
+which are online.
+
+{ \tiny  \begin{verbatim}
+http://127.0.0.1/~imp25/cgi-bin/gwybodaeth.cgi?src=http://rdf123.umbc.edu/csv/office1.csv&map=http://rdf123.umbc.edu/map/officeMap1.N3
+\end{verbatim} } 
+
+With the use of the CGI script it is important to remember to escape characters
+such as \& in the URLs to data/maps or the script will treat them as delimiters.
+
+\section{Functionality}
+\subsection{Input}
+The input format currently supported is CSV. The use of `start row,
+\emph{num}' is supported if you wish to start slurping the data from a row other
+than the first row.
+
+\subsection{Maps}
+The mapping files should be based on
+N3\footnote{http://www.w3.org/DesignIssues/Notation3.html}. An example of the
+currently supported grammer is shown in Figure ~\ref{fig:map4}. This mapping
+makes each row a Person subject with the email taken from the third
+column; the name being a concationation of the first and second columns; the
+nickname being taken from the first column; office number and phone being taken
+from the the fifth and fourth columns respectively. The object for the
+workAddress predicate is taken from the \verb!<Ex:$5>! function which defines a
+work:Office subject.
+\begin{figure}[!h]
+{ \small \begin{verbatim}
+@prefix work:    <http://www.foo.org/work/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix :        <#> .
+
+<Ex:$5>
+      a       work:Office ;
+      work:number "Ex:$5" ;
+      foaf:phone "Ex:$4" .
+
+[]    a       foaf:Person ;
+      foaf:mbox "Ex:$3" ;
+      foaf:name "Ex:$1+' '+$2" ;
+      foaf:nick "Ex:$1" ;
+      foaf:officeNumber "Ex:$5" ;
+      foaf:officePhone "Ex:$4" ;
+      foaf:workAddress <Ex:$5> .
+\end{verbatim} }
+\caption{RDF123's officeMap3.N3}
+\label{fig:map4}
+\end{figure}
+
+\begin{figure}[!h]
+{ \small \begin{verbatim}
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix :        <#> .
+
+[]    a       foaf:Person ;
+      foaf:mbox "Ex:$2" ;
+      foaf:name "Ex:$1" ;
+      foaf:officeNumber "Ex:$3" ;
+      foaf:supervisor
+              [ a       foaf:Person ;
+                foaf:name "Ex:$4"
+              ] 
+\end{verbatim} }
+\caption{RDF123's officeMap2.N3}
+\label{fig:map2}
+\end{figure}
+
+The map example shown in Figure ~\ref{fig:map2} shows the use of the [ ] syntax
+to allow inline functions. This is useful for short functions, however for more
+advanced functions the grammer used in Figure ~\ref{fig:map4} is more suitable.
+
+An explination of a number of the specific mapping grammer is in Table
+~\ref{tab:grammer}.  
+
+\begin{table}
+\begin{tabular}[!h]{|c|p{12cm}|}
+\hline
+\verb!"Ex:${num}"!&The value of the column \emph{num} is placed here as the
+object.\\
+\hline
+\verb!<Ex:${num}>!&This is a function. On its own line it defines the following block as the contents of the function. As an object it calls the defined
+function.\\ 
+\hline
++ & Allows for the concatination within the object.\\ 
+\hline
+[ a ... ] . & Define an inline function. \\
+\hline
+\end{tabular}
+\caption{Table of supported N3 grammer.}
+\label{tab:grammer}
+\end{table}
+\end{document}
