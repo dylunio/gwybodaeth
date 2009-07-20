@@ -21,6 +21,7 @@ sub escape {
 
     # escape '&' chars.
     $string =~ s/\s&\s/ &amp; /g;
+    chomp($string);
 
     return $string;
 }

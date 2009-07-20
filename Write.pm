@@ -68,6 +68,12 @@ sub _extract_field {
     elsif ($field =~ m/^\"Ex:.*\+/) {
         return $self->_cat_field($data, $field);
     }
+    elsif ($field =~ m/^\$(\d+)$/) {
+        my $field_num = int ($1 -1);
+        if( @{$data}[$field_num] ) {
+            return @{ $data }[$field_num];
+        }
+    }
     
     # If it doesn't match either of the above, allow it to be a bareword field
     return "$field";
@@ -127,15 +133,15 @@ sub _write_triples {
     my $esc = Escape->new();
 
     for my $triple_key ( keys %{ $triples } ) {
-        print "<$triple_key>\n";
+        print "<".$self->_if_parse($triple_key,$row).">\n";
         my @verbs = @{ $triples->{$triple_key}{'predicate'} };
         for my $indx (0..$#verbs ) {
-            print "<$verbs[$indx]>";
+            print "<".$self->_if_parse($verbs[$indx],$row).">";
             $self->_get_object($row,
                                $triples->{$triple_key}{'obj'}[$indx]);
-            print "</$verbs[$indx]>\n";
+            print "</".$self->_if_parse($verbs[$indx],$row) .">\n";
         }
-        print "</$triple_key>\n";
+        print "</".$self->_if_parse($triple_key,$row).">\n";
     }
 }
 
@@ -150,4 +156,43 @@ sub _get_object {
         print $esc->escape($self->_extract_field($row, $object));
     }
 } 
+
+# Parse the token to evaluate any if statements
+sub _if_parse {
+    my($self, $token, $row) = @_;
+
+    #print "@{ $row }";
+
+    if ($token =~ m/\@If\((.+)\;(.+)\;(.+)\)/i) {
+        my($question,$true,$false) = ($1, $2, $3);
+
+        $true =~ s/\'//g;
+        $false =~ s/\'//g;
+
+        my @q_split = split '=', $question;
+
+        $q_split[0] =~ s/\'//g;
+        $q_split[1] =~ s/\'//g;
+
+        my $ans = "";
+        if ($token =~ m/\<Ex\:(.+\+)\@If/i ) {
+            ($ans .= $1) =~ s/\+//g;
+            $ans .= ":";
+        }
+
+        if ($q_split[0] =~ m/^\$(\d+)/) {
+            $q_split[0] = @{ $row }[$1-1];
+        }
+
+        if ($q_split[0] eq $q_split[1]) {
+            $ans .= $true;
+        } else {
+            $ans .= $false;
+        }
+        $token = $ans;
+    }
+
+    return $token
+}
+
 1;
