@@ -37,8 +37,10 @@ sub write_rdf {
         }
     }       
 
-    if (!@pure_data) {
-        @pure_data = @{ $data };
+    if (!@pure_data) { # Always make sure the first line is skipped
+        for (1..$#{ $data }) {
+            push @pure_data, @{ $data }[$_];
+        }
     } 
 
     $self->_write_meta_data();
