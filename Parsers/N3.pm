@@ -178,9 +178,11 @@ sub _get_verb_and_object {
         $verb = ${ $data }[++$index];
         $object = $self->_get_object($data, ++$index);
 
-        if ($object =~ /[\;\]]/ ) { next };
+        if (defined($object) and defined($verb)) {
+            if ($object =~ /[\;\]]/ ) { next };
 
-        $triple->store_triple($subject, $verb, $object);
+            $triple->store_triple($subject, $verb, $object);
+        } else { next; }
     
         if (eval {$object->isa('Triples')}) {
             #while ($self->_next_token($data,$index) =~ /[^\]]/) {
@@ -204,6 +206,10 @@ sub _get_verb_and_object {
 
 sub _get_object {
     my($self, $data, $index) = @_;
+
+    unless (defined(${ $data }[$index])) {
+        return undef;
+    }
 
     if ((${ $data }[$index] eq '[') 
         and
