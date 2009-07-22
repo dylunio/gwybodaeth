@@ -8,6 +8,7 @@ use lib '.';
 
 use NamespaceManager;
 use Triples;
+use Tokenize;
 
 package N3;
 
@@ -34,11 +35,11 @@ sub parse {
     my $namespace = NamespaceManager->new();
     $namespace->map_namespace(\@data);
 
-    my $tokenized = $self->_tokenize(\@data);
+    my $tokenizer = Tokenize->new();
+    my $tokenized = $tokenizer->tokenize(\@data);
 
     $self->_parse_n3($tokenized);
 
-    #$self->_populate_func($triples) or croak "function population went wrong!";
     $self->_parse_triplestore($triples) 
         or croak "function population went wrong";
 
@@ -114,12 +115,13 @@ sub _parse_n3 {
             while((my $tok=$self->_next_token($data,$indx)) =~ /[^\]]/) {
                 ++$indx;
             } 
-            return $self->_parse_n3($data,$indx);
+            $indx = $self->_parse_n3($data,$indx);
+            next;
         }
 
         if ($token =~ m/\]/) {
             # logic
-            next;
+            return $indx;
         }
 
         if ($token =~ m/\./) {
@@ -134,58 +136,6 @@ sub _parse_n3 {
          
     }
     return $triples;
-}
-
-# Takes a reference to the input data as a parameter.
-sub _tokenize {
-    my($self, $data) = @_;
-
-    my @tokenized;
-
-    for (@{ $data }) {
-        for (split /\s+/) {
-            next if /^\s*$/;
-            push @tokenized, $_;
-        }
-    }
-
-    return $self->_tokenize_clean(\@tokenized);
-}
-
-# Takes a reference to the data which needs to be cleaned
-sub _tokenize_clean {
-    my($self, $data) = @_;
-
-    for my $i (0..$#{ $data }) {
-        
-        next if (not defined ${ $data }[$i]);
-        
-            # If a token begins with '<' but doesn't end with '>'
-            # then the token has been split up.
-        if ((${$data}[$i] =~ /^\</ && ${$data}[$i] =~ /[^\>]$/)||
-            # If the token begins but doesn't end with " the token may
-            # have been split up 
-            (${$data}[$i] =~ /^\"/ && ${$data}[$i] =~ /[^\"]$/)) {
-            
-            # Concatinate the next line to the current
-            # partial token. 
-            (${ $data }[$i] .= ${ $data }[$i+1]) =~ s/\s+//g;
-
-            # Re-index the token list to take into account the last
-            # concatination.
-            for my $j (($i+1)..($#{ $data }-1)) {
-                ${ $data }[$j] = ${ $data }[$j + 1];
-            }
-            
-            # The last data element should now be deleted
-            # as the data has been shifted up one in the 
-            # list.
-            delete ${ $data }[$#{ $data }];
-
-            redo; # try again in case the token is split onto more than 2 lines
-        }
-    }
-    return $data;
 }
 
 sub _next_token {
@@ -209,33 +159,47 @@ sub _parse_triple {
     my $subject = ${ $data }[$index];
 
     if ($self->_next_token($data, $index) eq ';') {
-        $self->_get_verb_and_object($data, $index, $subject, $triples)
+        $index = $self->_get_verb_and_object($data, $index, $subject, $triples)
     }
-    return 1;
+    return $index;
 }
 
 sub _get_verb_and_object {
     my($self, $data, $index, $subject, $triple) = @_;
 
-    ++$index; # to get past the ';' char
+    my $verb;
+    my $object;
+    my $next_token;
 
-    my $verb = ${ $data }[++$index];
-    my $object = $self->_get_object($data, ++$index);
+    while (defined($self->_next_token($data,$index))) {
 
-    $triple->store_triple($subject, $verb, $object);
+        ++$index; # to get past the ';' char
+
+        $verb = ${ $data }[++$index];
+        $object = $self->_get_object($data, ++$index);
+
+        if ($object =~ /[\;\]]/ ) { next };
+
+        $triple->store_triple($subject, $verb, $object);
     
-    my $next_token = $self->_next_token($data, $index);
+        if (eval {$object->isa('Triples')}) {
+            #while ($self->_next_token($data,$index) =~ /[^\]]/) {
+                #++$index;
+            #}
+            next;
+        }
 
-    if ($next_token eq ';') {
-        $self->_get_verb_and_object($data, $index, $subject, $triple);
-    } elsif ( $next_token eq '.') {
-        # end of section;
-        return $index;
-    } else {
-        # something went wrong?
-        return 0;
+        $next_token = $self->_next_token($data, $index);
+
+        if ($next_token eq ';') {
+            next;
+        } elsif ( $next_token eq '.' or $next_token eq ']') {
+            # end of section;
+            ++$index;
+            last;
+        }
     }
-    return 1;
+    return $index;
 }
 
 sub _get_object {
