@@ -16,9 +16,8 @@ sub write_rdf {
 
     $self->_write_meta_data();
 
-    #for my $row (@{ $data }) {
-        $self->_write_triples($data, $triples);
-    #}
+    $self->_write_triples($data->root, $triples);
+
     print "</rdf:RDF>\n";
 
     return 1;
@@ -33,12 +32,7 @@ sub _extract_field {
     # The object is a specific field
     if ($field =~ m/^\"Ex:\$(\w+)\"$/) {
         my $keyword = $1;
-        for my $i (0..$#{ $data }) {
-            if (@{ $data }[$i] =~ /^$keyword$/) {
-                return @{ $data }[$i+1];
-            }
-        }
-        return $data;
+        return $data->child( $keyword )->first_child_text( $keyword );
     }
 
     # Allow for a bareword field;

@@ -6,6 +6,7 @@ use strict;
 package GeoNamesXML;
 
 use Carp qw{croak};
+use XML::Twig;
 
 # Inherit from XML class
 use base qw( XML );
@@ -17,16 +18,25 @@ sub parse {
    
     ref($self) or croak "instance variable expected";
 
-    my @tokens;
-    foreach my $line (@data) {
-        push @tokens, split /[><]/, $line;
-    }
+    my $xml = XML::Twig->new();
 
-    #$self->_char_parse(\@chars,0,\%types);
+    my $string;
+    for my $line (@data) {
+        $string .= $line;
+    }
+    $xml->parse($string);
+
+#    my @tokens;
+#    foreach my $line (@data) {
+#        push @tokens, split /[><]/, $line;
+#    }
+
 
     use YAML;
-    #print Dump(\@tokens);
-    return \@tokens;
+
+#    print Dump($xml);
+#    return \@tokens;
+    return $xml;
 }
 
 sub _char_parse {
