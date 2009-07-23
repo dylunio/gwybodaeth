@@ -105,8 +105,8 @@ sub _write_triples {
         my @verbs = @{ $triples->{$triple_key}{'predicate'} };
         for my $indx (0..$#verbs ) {
             print "<".$self->_if_parse($verbs[$indx],$row).">";
-            $self->_get_object($row,
-                               $triples->{$triple_key}{'obj'}[$indx]);
+            print $esc->escape($self->_get_object($row, 
+                                     $triples->{$triple_key}{'obj'}[$indx]));
             print "</".$self->_if_parse($verbs[$indx],$row) .">\n";
         }
         print "</".$self->_if_parse($triple_key,$row).">\n";
@@ -117,19 +117,15 @@ sub _get_object {
     my($self, $row, $object) = @_;
 
     if (eval {$object->isa('Triples')}) {
-        print "\n";
         $self->_write_triples($row, $object);
     } else {
-        my $esc = Escape->new();
-        print $esc->escape($self->_extract_field($row, $object));
+        return $self->_extract_field($row, $object);
     }
 } 
 
 # Parse the token to evaluate any if statements
 sub _if_parse {
     my($self, $token, $row) = @_;
-
-    #print "@{ $row }";
 
     if ($token =~ m/\@If\((.+)\;(.+)\;(.+)\)/i) {
         my($question,$true,$false) = ($1, $2, $3);
