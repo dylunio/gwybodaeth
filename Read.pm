@@ -13,9 +13,7 @@ use Carp qw(croak);
 
 sub new {
     my $class = shift;
-    my $self = { };
-    my @data;
-    $self->{Data} = \@data;
+    my $self = {'Data' => [] };
     bless $self, $class;
     return $self;
 }
@@ -46,6 +44,8 @@ sub get_url_data {
     my $req = HTTP::Request->new(GET => $url);
     my $res = $browser->request($req);
 
+    #TODO: Add handling of invalid URLs
+
     # split content on line endings - should work with the different formats
     @{ $self->{Data} } = split /\012\015?|\015\012?/, $res->content; 
 
@@ -55,7 +55,7 @@ sub get_url_data {
 # Data return methods:
 sub get_input_data {
     ref(my $self = shift) or croak "instance variable needed";
-    return @{ $self->{Data} };
+    return $self->{Data};
 }
 
 1; 

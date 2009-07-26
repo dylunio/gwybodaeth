@@ -32,7 +32,7 @@ if (-f $map) {
 
 die "Empty site." if ($len < 1);
 
-my @data = $mapping->get_input_data;
+my @data = @{$mapping->get_input_data};
 
 my $parser = N3->new();
 
@@ -42,7 +42,7 @@ use CSV;
 
 my $csv = CSV->new();
 
-my $csv_data_ref = $csv->parse($input->get_input_data);
+my $csv_data_ref = $csv->parse(@{ $input->get_input_data });
 
 use WriteFromCSV;
 
