@@ -11,9 +11,6 @@ use LWP::UserAgent;
 use HTTP::Request;
 use Carp qw(croak);
 
-my @input_data;
-my @input_map;
-
 sub new {
     my $class = shift;
     my $self = { };
