@@ -24,6 +24,9 @@ sub get_file_data {
     ref(my $self = shift) or croak "instance variable needed";
     my $file = shift;
 
+    # Return if file doesn't exist
+    unless ( -e $file ) { return 0 };
+
     open my $fh, q{<}, $file or die "Couldn't open $file: $!";
 
     @{ $self->{Data} }= (<$fh>);
@@ -34,7 +37,7 @@ sub get_file_data {
 }
 
 # Open a URL download the body and store it
-# Returns length of URL data
+# Returns true if successful
 sub get_url_data {
     my($self, $url) = @_;
 
@@ -42,14 +45,13 @@ sub get_url_data {
 
     my $browser = LWP::UserAgent->new(); 
     my $req = HTTP::Request->new(GET => $url);
-    my $res = $browser->request($req);
+    my $res = $browser->get($url);
 
-    #TODO: Add handling of invalid URLs
+    if ($res->is_success) {
+        @{ $self->{Data} } = split /\012\015?|\015\012?/, $res->decoded_content;
+    } 
 
-    # split content on line endings - should work with the different formats
-    @{ $self->{Data} } = split /\012\015?|\015\012?/, $res->content; 
-
-    return int $self->{Data};
+    return $res->is_success;
 }
 
 # Data return methods:
