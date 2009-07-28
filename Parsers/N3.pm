@@ -43,7 +43,7 @@ sub parse {
     $self->_parse_triplestore($triples) 
         or croak "function population went wrong";
 
-    return $triples;
+    return [$triples,$functions];
 }
 
 # Expects a reference to the tokenized data as a parameter
@@ -53,8 +53,14 @@ sub _parse_n3 {
     my $index_start = shift || 0;
 
     for my $indx ($index_start..$#{ $data } ) {
+
+        use YAML;
+        #print Dump($triples);
+        #print Dump($functions);
+
         my $token = ${ $data }[$indx];
-        my $next_token = ${ $data }[$indx+1 % $#{ $data }];
+        #my $next_token = ${ $data }[$indx+1 % $#{ $data }];
+        my $next_token = ${ $data }[$indx+1];
 
         my $subject;
 
@@ -98,6 +104,7 @@ sub _parse_n3 {
                 # not its defenition
                 next;
             } else {
+                #$self->_record_attribute($data, $indx);
                 $self->_record_func($data, $indx);
                 while((my $tok=$self->_next_token($data,$indx)) =~ /[^\.]/) {
                     ++$indx;
@@ -150,22 +157,23 @@ sub _next_token {
 # Takes a reference to the data and pointer to the start
 # of relevent data as a parameter
 sub _parse_triple {
-    my $self = shift;
-    my $data = shift;
+    my $self  = shift;
+    my $data  = shift;
     my $index = shift;
+    my $attr  = shift;
 
     ++$index;
     
     my $subject = ${ $data }[$index];
 
     if ($self->_next_token($data, $index) eq ';') {
-        $index = $self->_get_verb_and_object($data, $index, $subject, $triples)
+        $index = $self->_get_verb_and_object($data, $index, $subject, $triples, $attr)
     }
     return $index;
 }
 
 sub _get_verb_and_object {
-    my($self, $data, $index, $subject, $triple) = @_;
+    my($self, $data, $index, $subject, $triple, $attr) = @_;
 
     my $verb;
     my $object;
@@ -224,7 +232,7 @@ sub _get_object {
 sub _get_nested_triple {
     my($self, $data, $index) = @_;
 
-    $index += 1; # to get over the ';' and 'a'
+    ++$index; # to get over the ';' and 'a'
 
     my $nest_triple = Triples->new();
 
@@ -251,6 +259,15 @@ sub _record_func {
 
     $functions->{$func_name} = $func_triple;
     return $index;
+}
+
+# Store a subject's rdf:ID value
+sub _record_attribute {
+    my($self, $data, $index) = @_;
+
+    my $attr_name = ${ $data }[$index];
+
+    $self->_parse_triple($data, ++$index, $attr_name);
 }
 
 # Parse the main triples hash so that functions are
@@ -288,8 +305,8 @@ sub _populate_func {
             for my $i (0..$#{ $triple->{$tkey}{'obj'} }) {
                 my $obj = $triple->{$tkey}{'obj'}[$i];
                 if ($obj eq $fkey) {
-                    $triple->{$tkey}{'obj'}[$i] = $functions->{$fkey};
-                    $self->_populate_func($triple);
+                    #$triple->{$tkey}{'obj'}[$i] = $functions->{$fkey};
+                    #$self->_populate_func($triple);
                 }
             }
         }

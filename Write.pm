@@ -13,7 +13,7 @@ use Carp qw(croak);
 
 sub new {
     my $class = shift;
-    my $self = { };
+    my $self = { ids => {} };
     bless $self, $class;
     return $self;
 }
@@ -25,12 +25,11 @@ sub _extract_field {
     my $field = shift;
 
     # The object is a specific field
-    if ($field =~ m/^\"Ex:\$(\d+)\"$/) {
-        my $field_num = int ($1 -1); # we subtract 1 as arrays start at 0 not 1
+    if ($field =~ m/^\"Ex:\$(\d+)\"$/) { 
+        my $field_num = int ($1-1); # we subtract 1 as arrays start at 0 not 1
         if( @{$data}[$field_num] ) {
             return @{ $data }[$field_num];
         }
-    
     }
     # The object is a concatination of fields 
     elsif ($field =~ m/^\"Ex:.*\+/) {
@@ -41,9 +40,16 @@ sub _extract_field {
         if( @{$data}[$field_num] ) {
             return @{ $data }[$field_num];
         }
+    } 
+    elsif ($field =~ m/^\<Ex:\$(\d+)\>$/) {
+        my $field_num = int ($1-1);
+        if( @{$data}[$field_num] ) {
+            chomp(my $field_text = @{ $data }[$field_num]);
+            return $field_text;
+        }
     }
     
-    # If it doesn't match either of the above, allow it to be a bareword field
+    # If it doesn't match any of the above, allow it to be a bareword field
     return "$field";
 }
 
@@ -96,20 +102,83 @@ sub _write_meta_data {
 }
 
 sub _write_triples {
-    my($self, $row, $triples) = @_;
-    
-    my $esc = Escape->new();
+    my($self, $row, $triple_data) = @_;
+
+    my($triples, $functions) = @{ $triple_data };
+
+    $self->_really_write_triples($row, $triples);
+
+    for my $key (%{ $functions }) {
+        $self->_really_write_triples($row, $functions->{$key},$key);
+    }
+}
+
+sub _really_write_triples {
+    my ($self, $row, $triples, $id) = @_;
 
     for my $triple_key ( keys %{ $triples } ) {
-        print "<".$self->_if_parse($triple_key,$row).">\n";
+
+        print "<".$self->_if_parse($triple_key,$row);
+        if ($id) {
+            chomp(my $id_text = $self->_extract_field($row,$id));
+            if (ref($id_text) eq 'ARRAY') {
+                for my $obj (@{ $id_text }) {
+                    print $self->_about_or_id($obj);
+                }
+            } else {
+                print $self->_about_or_id($id_text);
+            }
+            print '"';
+        } 
+        print ">\n";
+
         my @verbs = @{ $triples->{$triple_key}{'predicate'} };
         for my $indx (0..$#verbs ) {
-            print "<".$self->_if_parse($verbs[$indx],$row).">";
-            print $esc->escape($self->_get_object($row, 
-                                     $triples->{$triple_key}{'obj'}[$indx]));
-            print "</".$self->_if_parse($verbs[$indx],$row) .">\n";
+            $self->_get_verb_and_object(
+                                $verbs[$indx],
+                                $triples->{$triple_key}{'obj'}[$indx],
+                                $row);
         }
         print "</".$self->_if_parse($triple_key,$row).">\n";
+    }
+}
+
+sub _get_verb_and_object {
+    my($self, $verb, $object, $row) = @_;
+    
+    my $obj_text = $self->_get_object($row, $object);
+    
+    if (ref($obj_text) eq 'ARRAY') {
+        for my $obj (@{ $obj_text }) {
+            $self->_print_verb_and_object($verb, $obj, $row, $object);
+        }
+    } else {
+        $self->_print_verb_and_object($verb, $obj_text, $row, $object);
+    }
+}
+
+sub _print_verb_and_object {
+    my ($self, $verb, $object, $row, $unparsed_obj) = @_;
+    my $esc = Escape->new();
+
+    print "<" . $self->_if_parse($verb,$row);
+
+    if ( $unparsed_obj =~ m/\<Ex:\$\w+\/?\w*\>$/ ) {
+        # We have a reference
+        print ' rdf:resource="#';
+        my $parsed_obj = $self->_get_object($row,$unparsed_obj);
+        if (ref($parsed_obj) eq 'ARRAY') {
+            for my $obj (@{ $parsed_obj }) {
+                print $esc->escape($obj);
+            }
+        } else {
+            print $esc->escape($parsed_obj);
+        }
+        print "\"/>\n";
+    } else {
+        print ">";
+        print $esc->escape($self->_get_object($row,$object));
+        print "</" . $self->_if_parse($verb,$row) . ">\n";
     }
 }
 
@@ -121,7 +190,19 @@ sub _get_object {
     } else {
         return $self->_extract_field($row, $object);
     }
-} 
+}
+
+sub _about_or_id {
+    my($self, $text) = @_;
+
+    if ($text =~ /\s/) { 
+        print ' rdf:about="#';
+    } else {
+        print ' rdf:ID="';
+    }
+    return $text;
+}
+  
 
 # Parse the token to evaluate any if statements
 sub _if_parse {

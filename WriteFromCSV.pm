@@ -13,8 +13,11 @@ use Carp qw(croak);
 
 sub write_rdf {
     ref(my $self = shift) or croak "instance variable needed";
-    my $triples = shift;
-    my $data = shift; 
+    my $triple_data = shift;
+    my $data = shift;
+
+    my $triples = ${ $triple_data }[0];
+    my $functions = ${ $triple_data }[1]; 
 
     # This loop makes sure that we give the data
     # interpreter only the data we want and not 
@@ -38,9 +41,25 @@ sub write_rdf {
 
     $self->_write_meta_data();
 
+    use YAML;
+    #print Dump($triples);
+    
     for my $row (@pure_data) {
-        $self->_write_triples($row, $triples);
+        #$self->_write_triples($row, $triple_data);
+        $self->_really_write_triples($row,$triples);
     }
+    my %ids;
+    use YAML;
+    #print Dump($functions);
+   for my $key (reverse keys %{ $functions }) {
+        for my $row (@pure_data) {
+            my $id = $self->_extract_field($row,$key);
+            next if (exists $ids{$id});
+            $ids{$id} = "";
+            $self->_really_write_triples($row, $functions->{$key},$key);
+        }
+    }
+
     print "</rdf:RDF>\n";
 
     return 1;

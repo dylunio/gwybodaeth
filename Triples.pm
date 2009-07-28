@@ -23,6 +23,7 @@ use Carp qw(croak);
         my $subject     = shift;
         my $predicate   = shift;
         my $object      = shift; 
+        my $attribute   = shift;
 
         # If this is the first time we've come accross $subject
         # we create a new hash key for it
@@ -30,11 +31,16 @@ use Carp qw(croak);
             $self->{$subject} = {
                                 'obj' => [],
                                 'predicate' => [],
+                                'attr' => undef,
                                 };
         }
 
         push @{ $self->{$subject}{'obj'} }, $object;
         push @{ $self->{$subject}{'predicate'} }, $predicate;
+        if (defined $attribute) {
+            chomp($attribute);
+            $self->{$subject}{'attr'} = "$attribute";
+        }
 
         return $self;
     }

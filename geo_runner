@@ -23,7 +23,7 @@ if (-f $data) {
     $len = $input->get_url_data($data);
 }
 
-die "Empty site." if ($len < 1);
+die "Empty site" if ($len < 1);
 
 my $mapping = Read->new();
 
@@ -33,14 +33,14 @@ if (-f $map) {
     $len = $mapping->get_url_data($map);
 }
 
-die "Empty map." if ($len < 1);
+die "Empty map" if ($len < 1);
 
 my $xml = GeoNamesXML->new();
 
-my $xml_data_ref = $xml->parse($input->get_input_data);
+my $xml_data_ref = $xml->parse(@{ $input->get_input_data });
 
 my $m = N3->new();
-my $map_triples = $m->parse($mapping->get_input_data);
+my $map_triples = $m->parse(@{ $mapping->get_input_data });
 
 my $write = WriteFromXML->new();
 

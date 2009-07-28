@@ -24,18 +24,9 @@ sub parse {
     for my $line (@data) {
         $string .= $line;
     }
+
     $xml->parse($string);
 
-#    my @tokens;
-#    foreach my $line (@data) {
-#        push @tokens, split /[><]/, $line;
-#    }
-
-
-    use YAML;
-
-#    print Dump($xml);
-#    return \@tokens;
     return $xml;
 }
 
