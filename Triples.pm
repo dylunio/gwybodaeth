@@ -7,7 +7,6 @@ package Triples;
 
 use Carp qw(croak);
 {
-
     sub new {
         my $class = shift;
         my $self = {};
@@ -20,10 +19,9 @@ use Carp qw(croak);
     sub store_triple {
         ref(my $self    = shift) or croak "instance variable needed";
 
-        my $subject     = shift;
-        my $predicate   = shift;
-        my $object      = shift; 
-        my $attribute   = shift;
+        defined(my $subject     = shift) or croak "must pass a subject";
+        defined(my $predicate   = shift) or croak "must pass a predicate";
+        defined(my $object      = shift) or croak "must pass an object"; 
 
         # If this is the first time we've come accross $subject
         # we create a new hash key for it
@@ -31,16 +29,11 @@ use Carp qw(croak);
             $self->{$subject} = {
                                 'obj' => [],
                                 'predicate' => [],
-                                'attr' => undef,
                                 };
         }
 
         push @{ $self->{$subject}{'obj'} }, $object;
         push @{ $self->{$subject}{'predicate'} }, $predicate;
-        if (defined $attribute) {
-            chomp($attribute);
-            $self->{$subject}{'attr'} = "$attribute";
-        }
 
         return $self;
     }

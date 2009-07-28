@@ -44,8 +44,9 @@ sub _tokenize_clean {
             (${$data}[$i] =~ /^\"/ && ${$data}[$i] =~ /[^\"]$/)) {
             
             # Concatinate the next line to the current
-            # partial token. 
-            (${ $data }[$i] .= ${ $data }[$i+1]) =~ s/\s+//g;
+            # partial token. We add a space inbetween to repair from
+            # the split operation. 
+            ${ $data }[$i] .= " ${ $data }[$i+1]";
 
             # Re-index the token list to take into account the last
             # concatination.
