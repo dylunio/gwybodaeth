@@ -1,6 +1,19 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage{listings}
 \usepackage{url}
+\usepackage{fancyvrb}
+\usepackage[usenames,dvipsnames]{color}
+
+%% This has be at the end of the \uspackage defs
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,%
+    linkcolor=MidnightBlue,          % color of internal links
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=Plum 
+}
 
 %% Define a new 'leo' style for the package that will use a smaller font.
 \makeatletter
@@ -24,9 +37,11 @@
 Revision: \VCRevision
 \end{center}
 
+\tableofcontents
+
 \section{Usage}
 
-\textbf{gwybodaeth} is a set of Perl classes for convesion of data into RDF. It can be either used from a command line tool or via a CGI web
+\textbf{gwybodaeth} is a set of Perl classes for conversion of data into RDF. It can be either used from a command line tool or via a CGI web
 script. 
 
 \subsection{Command Line}
@@ -49,24 +64,33 @@ or path to the data file, the second being a URL or path to the mapping file:
 \subsection{CGI}
 In the URL \verb!src! is used to assign the data source and \verb!map! is used
 to assign the map source. The CGI script currently only works with data and maps
-which are online.
+which are available via HTTP.
 \\
 \\
-\noindent\url{http://127.0.0.1/~imp25/cgi-bin/gwybodaeth.cgi?src=http://rdf123.umbc.edu/csv/office1.csv&map=http://rdf123.umbc.edu/map/officeMap1.N3}
+\noindent\nolinkurl{http://127.0.0.1/~imp25/cgi-bin/gwybodaeth.cgi?src=http://rdf123.umbc.edu/csv/office1.csv&map=http://rdf123.umbc.edu/map/officeMap1.N3}
 \\
 \\
 With the use of the CGI script it is important to remember to escape characters
-such as \& in the URLs to data/maps or the script will treat them as delimiters.
+such as \& in the URLs to data/maps or the script will treat them as
+delimiters. For example use
+
+\noindent
+\nolinkurl{http://ws.geonames.org/findNearbyPlaceName?lat=47.3%26lng=9%26style=full}
+
+\noindent instead of
+
+\noindent \nolinkurl{http://ws.geonames.org/findNearbyPlaceName?lat=47.3&lng=9&style=full}. 
 
 \section{Functionality}
 \subsection{Input}
-The input formats currently supported are CSV and XML from
-GeoNames\footnote{\url{http://www.geonames.org/}}. 
+The input formats currently supported are XML from
+GeoNames\footnote{\url{http://www.geonames.org/}} and CSV.
 
 \subsubsection{CSV}
-For CSV the use of `start row, \emph{num}' is supported if you wish to start
-reading the data from a row other than the second row\footnote{The first row
-is always skipped as it's assumed that it contains column headings}.
+For CSV the use of `start row, \emph{num}' within the CSV file is supported
+if you wish to start reading the data from a row other than the second
+row\footnote{The first row is always skipped as it's assumed that it contains
+column headings}.
 
 \subsubsection{GeoNames XML}
 
@@ -80,14 +104,16 @@ a XML tag within the block being converted.
 
 An example of the currently supported grammer for CSV conversion is shown
 in Figure \ref{fig:map4}. This mapping makes each row a Person subject with
-the email taken from the third column; the name being a concationation
+the email taken from the third column; the name being a concatenation
 of the first and second columns; the nickname being taken from the first
 column; office number and phone being taken from the the fifth and fourth
-columns respectively. The object for the workAddress predicate is set to be a
-\verb!rdf:resource! refering to the block described by \verb!<Ex:$5>! function
-which defines a work:Office subject.
+columns respectively. The object for the workAddress predicate is set
+to be a \verb!rdf:resource! refering to the block described by the
+\verb!<Ex:$5>! function which defines a work:Office subject.
 
-\begin{figure}[!h] { \small \begin{verbatim} 
+\begin{figure}[!h] 
+{ \small 
+\begin{Verbatim}[frame=single] 
 @prefix work:    <http://www.foo.org/work/> .  
 @prefix foaf:    <http://xmlns.com/foaf/0.1/> . 
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .  
@@ -105,13 +131,15 @@ which defines a work:Office subject.
       foaf:officeNumber "Ex:$5" ;
       foaf:officePhone "Ex:$4" ;
       foaf:workAddress <Ex:$5> .
-\end{verbatim} }
+\end{Verbatim} 
+}
 \caption{RDF123's officeMap3.N3 for CSV}
 \label{fig:map4}
 \end{figure}
 
 \begin{figure}[!h]
-{ \small \begin{verbatim}
+{ \small 
+\begin{Verbatim}[frame=single]
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix foaf:    <http://xmlns.com/foaf/0.1/> .
 @prefix :        <#> .
@@ -124,20 +152,21 @@ which defines a work:Office subject.
               [ a       foaf:Person ;
                 foaf:name "Ex:$4"
               ] 
-\end{verbatim} }
+\end{Verbatim} 
+}
 \caption{RDF123's officeMap2.N3}
 \label{fig:map2}
 \end{figure}
 
-The map example shown in Figure ~\ref{fig:map2} shows the use of the [ ] syntax
+The map example shown in Figure~\ref{fig:map2} shows the use of the [ ] syntax
 to allow inline functions. This is useful for short functions, however for more
-advanced functions the grammer used in Figure~\ref{fig:map4} is more suitable.
+advanced functions the grammar used in Figure~\ref{fig:map4} is more suitable.
 
-An explination of a number of the specific mapping grammer is in Table
+An explanation of a number of the specific mapping grammar is in Table
 ~\ref{tab:grammer}.  
 
 \begin{table}
-\begin{tabular}[!h]{|c|p{11cm}|}
+\begin{tabular}[!h]{|c|p{09cm}|}
 \hline
 \multicolumn{2}{|r|}{Input: All}\\
 \hline
@@ -152,13 +181,13 @@ As an object it references the defined function with \verb!rdf:resource!.\\
 \hline
 \multicolumn{2}{|r|}{Input: CSV}\\
 \hline
-+ & Allows for the concatination within the object.\\ 
++ & Allows for the concatenation within the object.\\ 
 \hline
-@If(\emph{condtion},\emph{true},\emph{false}) & Evaluates \emph{condition} and
+@If(\emph{condition},\emph{true},\emph{false}) & Evaluates \emph{condition} and
 returns \emph{true} if the condition is true, otherwise it returns \emph{false}. \\
 \hline
 \end{tabular}
-\caption{Table of supported N3 grammer.}
+\caption{Table of supported N3 grammar.}
 \label{tab:grammer}
 \end{table}
 \subsubsection{References}
@@ -166,13 +195,13 @@ The ability to reference data within a document is one of the strengths of
 RDF.  The main RDF syntax for this is \verb!rdf:ID! and \verb!rdf:about! to
 set an anchor and \verb!rdf:resource! to reference the anchor. Within a
 document each \verb!rdf:ID! must be a unique word (i.e.\ a string without
-whitespace), however \verb!rdf:about! does not have to be unique and may
+white space), however \verb!rdf:about! does not have to be unique and may
 contain strings. 
 
 Currently if the anchor is a word \texttt{gwybodaeth} will use the
 \verb!rdf:ID! syntax, otherwise it will use the \verb!rdf:about! syntax. In
-all cases \verb!rdf:resource! will refere to the anchor. The syntax for setting
-and refering to references is set out in table~\ref{tab:grammer}.
+all cases \verb!rdf:resource! will refer to the anchor. The syntax for setting
+and referring to references is set out in table~\ref{tab:grammer}.
 
 Due to the requirement for unique IDs we must avoid clashes. In order to do
 this a system of precedence has been put in place in the mapping file. A
@@ -200,23 +229,26 @@ By having applying precedence to the mapping file the first function will be
 mapped to the whole file before the second function is mapped to the
 whole file. The first pass gives us a full Person block for each of Al Turing,
 Don Knuth and Marvin Minsky. The second pass gives us a short supervisor block
-for Grace Hopper has he has yet to be defined. Now we have all the information
+for Grace Hopper as she has yet to be defined. Now we have all the information
 possible from the file according to the mapping used without any redefinitions
-of IDs.
+of IDs as seen in fig~\ref{rdf:precedence}.
 
 \begin{figure}[!h]
-{ \small \begin{verbatim}
+{ \small 
+\begin{Verbatim}[frame=single]
 NAME,EMAIL,OFFICE,SUPERVISOR
 Al Turing,amt@umbc.edu,ITE332,Don Knuth
 Don Knuth,dek@umbc.edu,ITE332,Grace Hopper
 Marvin Minsky,mlm@umbc.edu,ITE442,Grace Hopper
-\end{verbatim} }
-\caption{RDF123 example office2.csv}
-\label{fig:csv2}
+\end{Verbatim}
+}
+    \caption{RDF123 example office2.csv}
+    \label{fig:csv2}
 \end{figure}
 
 \begin{figure}[!h]
-{ \small \begin{verbatim}
+{ \small 
+\begin{Verbatim}[frame=single]
 @prefix foaf:    <http://xmlns.com/foaf/0.1/> .
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix :        <#> .
@@ -231,13 +263,15 @@ Marvin Minsky,mlm@umbc.edu,ITE442,Grace Hopper
 <Ex:$4>
       a       foaf:Person ;
       foaf:name "Ex:$4" .
-\end{verbatim} }
+\end{Verbatim} 
+}
 \caption{RDF123 example officeMap3.N3}
 \label{fig:map3}
 \end{figure}
 
 \begin{figure}[!h]
-{ \small \begin{verbatim}
+{ \small 
+\begin{Verbatim}[frame=single]
   <foaf:Person rdf:about="#Al Turing">
     <foaf:mbox>amt@umbc.edu</foaf:mbox>
     <foaf:name>Al Turing</foaf:name>
@@ -247,8 +281,46 @@ Marvin Minsky,mlm@umbc.edu,ITE442,Grace Hopper
   <foaf:Person rdf:about="#Don Knuth">
     <foaf:name>Don Knuth</foaf:name>
   </foaf:Person>
-\end{verbatim} }
-\caption{RDF/XML output of the first line of the map shown in fig~\ref{fig:map3}}
-\label{rdf:firstline}
+\end{Verbatim}
+}
+\caption{RDF/XML output of the first line of the data from fig~\ref{fig:csv2}
+with the map shown in fig~\ref{fig:map3} without precedence}
+\label{rdf:firstline} 
 \end{figure}
+
+\begin{figure}[!h]
+{ \small 
+\begin{Verbatim}[frame=single]
+<?xml version="1.0"?>
+<rdf:RDF xmlns:foaf="http://xmlns.com/foaf/0.1/"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <foaf:Person rdf:about="#Al Turing">
+    <foaf:mbox>amt@umbc.edu</foaf:mbox>
+    <foaf:name>Al Turing</foaf:name>
+    <foaf:officeNumber>ITE332</foaf:officeNumber>
+    <foaf:supervisor rdf:resource="#Don Knuth"/>
+  </foaf:Person>
+  <foaf:Person rdf:about="#Don Knuth">
+    <foaf:mbox>dek@umbc.edu</foaf:mbox>
+    <foaf:name>Don Knuth</foaf:name>
+    <foaf:officeNumber>ITE332</foaf:officeNumber>
+    <foaf:supervisor rdf:resource="#Grace Hopper"/>
+  </foaf:Person>
+  <foaf:Person rdf:about="#Marvin Minsky">
+    <foaf:mbox>mlm@umbc.edu</foaf:mbox>
+    <foaf:name>Marvin Minsky</foaf:name>
+    <foaf:officeNumber>ITE442</foaf:officeNumber>
+    <foaf:supervisor rdf:resource="#Grace Hopper"/>
+  </foaf:Person>
+  <foaf:Person rdf:about="#Grace Hopper">
+    <foaf:name>Grace Hopper</foaf:name>
+  </foaf:Person>
+</rdf:RDF>
+\end{Verbatim}
+}
+\caption{RDF/XML output of the data from fig~\ref{fig:csv2} and map from
+fig~\ref{fig:map3} using precedence}
+\label{rdf:precedence}
+\end{figure}
+
 \end{document}

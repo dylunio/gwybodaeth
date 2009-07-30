@@ -1,4 +1,6 @@
 *.aux
 *.log
 *.pdf
+*.toc
+*.out
 vc.tex
