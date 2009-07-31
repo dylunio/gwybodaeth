@@ -2,12 +2,13 @@
 
 use warnings;
 use strict;
-use lib '/home/imp25/urop/perl/gwybodaeth';
-use lib '/home/imp25/urop/perl/gwybodaeth/Parsers';
+
+use lib '.';
+use lib 'Parsers/';
 use lib 'Write/';
 
 use Carp qw(croak);
-use Getopt::Long;
+use CGI;
 
 # gwybodaeth specific modules
 use Read;
@@ -30,13 +31,13 @@ for my $file (readdir($dh)) {
 }
 closedir($dh);
 
-my $data;
-my $map;
-my $in_type;
+my $cgi = CGI->new();
+print $cgi->header('Content-type: application/rdf+xml');
 
-GetOptions('src|source=s' => \$data,
-           'map=s' => \$map,
-           'input|in=s' => \$in_type );
+my $data = $cgi->param('src');
+my $map = $cgi->param('map');
+my $in_type = $cgi->param('in');
+
 
 my $input = Read->new();
 
