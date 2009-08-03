@@ -17,9 +17,6 @@ sub write_rdf {
     my $triples = $triple_data->[0]; 
     my $functions = $triple_data->[1];
 
-    use YAML;
-    #print Dump($functions);
-
     $self->_write_meta_data();
     for my $child ($data->root->children) {
         $self->_write_triples($child, $triple_data);
@@ -27,6 +24,19 @@ sub write_rdf {
 
     print "</rdf:RDF>\n";
 
+    return 1;
+}
+
+sub _write_triples {
+    my($self, $row, $triple_data) = @_;
+
+    my($triples, $functions) = @{ $triple_data };
+
+    $self->_really_write_triples($row, $triples);
+
+    for my $key (%{ $functions }) {
+        $self->_really_write_triples($row, $functions->{$key},$key);
+    }
     return 1;
 }
 
@@ -65,16 +75,36 @@ sub _extract_field {
     return $field;
 }
 
-sub _write_triples {
-    my($self, $row, $triple_data) = @_;
+sub _cat_field {
+    my $self = shift;
+    my $data = shift;
+    my $field = shift;
+    $field =~ s/Ex://;
 
-    my($triples, $functions) = @{ $triple_data };
+    my $string = "";
+    my $texts = [];
 
-    $self->_really_write_triples($row, $triples);
+    my @values = split /\+/, $field;
 
-    for my $key (%{ $functions }) {
-        $self->_really_write_triples($row, $functions->{$key},$key);
+    for my $val (@values) {
+        # Extract ${tag} variables from the data
+        if ($val =~ m/\$(\w+\/?\w*)/) {
+            my $keyword = $1;
+            for my $node ($data->findnodes("$keyword")) {
+                if (defined($node->text())) {
+                    push @{ $texts }, $node->text();
+                }
+            }
+        }
+        # Put a space; 
+        elsif ($val =~ m/\'\s*\'/) {
+            push @{ $texts }, " ";
+        } 
+        # Print a literal
+        else {
+            push @{ $texts }, $val;
+        }
     }
+    return join '', @{ $texts };
 }
-
 1;
