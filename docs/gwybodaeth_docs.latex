@@ -182,9 +182,9 @@ As an object it references the defined function with \verb!rdf:resource!.\\
 \hline
 [ a ... ] . & Define an inline function. \\
 \hline
-\multicolumn{2}{|r|}{Input: CSV}\\
++ & Allows for the concatenation within the field.\\ 
 \hline
-+ & Allows for the concatenation within the object.\\ 
+\multicolumn{2}{|r|}{Input: CSV}\\
 \hline
 @If(\emph{condition},\emph{true},\emph{false}) & Evaluates \emph{condition} and
 returns \emph{true} if the condition is true, otherwise it returns \emph{false}. \\
