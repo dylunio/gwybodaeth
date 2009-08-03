@@ -4,10 +4,11 @@ use warnings;
 use strict;
 use lib '/home/imp25/urop/perl/gwybodaeth';
 use lib '/home/imp25/urop/perl/gwybodaeth/Parsers';
-use lib 'Write/';
+use lib 'Write';
 
 use Carp qw(croak);
 use Getopt::Long;
+use XML::Twig;
 
 # gwybodaeth specific modules
 use Read;
@@ -29,6 +30,27 @@ for my $file (readdir($dh)) {
     }
 }
 closedir($dh);
+
+# Load configuration
+my $file = 'Config/config';
+-e $file or croak "you need a configuration file: $!";
+
+my $twig = XML::Twig->new();
+$twig->parsefile($file);
+
+my @converters = $twig->root->children( 'converter' );
+my %convert = ();
+
+for my $conv (@converters) {
+    my $name = $conv->first_child_text('name');
+    my $parser = $conv->first_child_text('parser');
+    my $writer = $conv->first_child_text('writer');
+    
+    $convert{$name} = { parser => $parser, writer => $writer };
+}
+
+#use YAML;
+#print Dump(%convert);
 
 my $data;
 my $map;
@@ -67,12 +89,13 @@ my $map_triples = $map_parser->parse(@data);
 
 my $parser;
 my $writer;
-if ($in_type =~ m/^csv$/i) {
-    $parser = CSV->new();
-    $writer = WriteFromCSV->new();
-} elsif ($in_type =~ m/geonames/i) {
-    $parser = GeoNamesXML->new();
-    $writer = WriteFromXML->new();
+if (defined($convert{$in_type})) {
+    my $write_mod = $convert{$in_type}->{'writer'};
+    my $parse_mod = $convert{$in_type}->{'parser'};
+    $parser = eval { $parse_mod->new() };
+    $writer = eval { $write_mod->new() };
+} else {
+    croak "$in_type is not defined in the config file";
 }
 
 my $parsed_data_ref = $parser->parse(@{ $input->get_input_data });
