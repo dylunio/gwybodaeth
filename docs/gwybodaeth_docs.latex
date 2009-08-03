@@ -45,20 +45,23 @@ Revision: \VCRevision
 script. 
 
 \subsection{Command Line}
-The current command line tool takes two arguments, the first being a URL
-or path to the data file, the second being a URL or path to the mapping file:
+The current command line tool takes three arguments, the source and map
+locations and the input data type. The source and map locations can be a URL
+or path to a file:
 
 \begin{verbatim}
-./gwyboadaeth data1.csv dataMap1.N3
+./gwyboadaeth --source=data1.csv --map=dataMap1.N3 --input=csv
 \end{verbatim}
 \begin{verbatim}
-./gwyboadaeth http://foo.bar.com/data1.csv http://foo.bar.com/dataMap1.N3
+./gwyboadaeth --source=http://foo.bar.com/data1.csv
+--map=http://foo.bar.com/dataMap1.N3 --input=csv
 \end{verbatim}
 
 \noindent You can also combine sources from local files and the and the web, i.e:
 
 \begin{verbatim}
-./gwyboadaeth data.csv http://foo.bar.com/dataMap.N3
+./gwyboadaeth --source=data.csv --map=http://foo.bar.com/dataMap.N3 
+--input=csv
 \end{verbatim}
 
 \subsection{CGI}
@@ -79,7 +82,7 @@ delimiters. For example use
 
 \noindent instead of
 
-\noindent \nolinkurl{http://ws.geonames.org/findNearbyPlaceName?lat=47.3&lng=9&style=full}. 
+\noindent \nolinkurl{http://ws.geonames.org/findNearbyPlaceName?lat=47.3&lng=9&style=full} 
 
 \section{Functionality}
 \subsection{Input}
