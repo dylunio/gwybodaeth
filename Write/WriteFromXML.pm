@@ -64,4 +64,17 @@ sub _extract_field {
     # Allow for a bareword field;
     return $field;
 }
+
+sub _write_triples {
+    my($self, $row, $triple_data) = @_;
+
+    my($triples, $functions) = @{ $triple_data };
+
+    $self->_really_write_triples($row, $triples);
+
+    for my $key (%{ $functions }) {
+        $self->_really_write_triples($row, $functions->{$key},$key);
+    }
+}
+
 1;
