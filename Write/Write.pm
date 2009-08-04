@@ -138,15 +138,18 @@ sub _really_write_triples {
 
 sub _get_verb_and_object {
     my($self, $verb, $object, $row) = @_;
-    
-    my $obj_text = $self->_get_object($row, $object);
-    
+
+    my $obj_text = "";
+    unless ( eval{ $object->isa('Triples') } ) {
+        $obj_text = $self->_get_object($row, $object);
+    }
+
     if (ref($obj_text) eq 'ARRAY') {
         for my $obj (@{ $obj_text }) {
             $self->_print_verb_and_object($verb, $obj, $row, $object);
         }
     } else {
-        $self->_print_verb_and_object($verb, $obj_text, $row, $object);
+        $self->_print_verb_and_object($verb, $object, $row, $object);
     }
 }
 
@@ -170,7 +173,7 @@ sub _print_verb_and_object {
         print "\"/>\n";
     } else {
         print ">";
-        print $esc->escape($self->_get_object($row,$object));
+        print $esc->escape($self->_get_object($row,$unparsed_obj));
         print "</" . $self->_if_parse($verb,$row) . ">\n";
     }
 }
