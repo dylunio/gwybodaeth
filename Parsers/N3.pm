@@ -43,9 +43,6 @@ sub parse {
     $self->_parse_triplestore($triples) 
         or croak "function population went wrong";
 
-    use YAML;
-    #print Dump($triples);
-
     return [$triples,$functions];
 }
 
@@ -56,10 +53,6 @@ sub _parse_n3 {
     my $index_start = shift || 0;
 
     for( my $indx = $index_start; $indx <= $#{ $data }; ++$indx ) {
-
-        use YAML;
-        #print Dump($triples);
-        #print Dump($functions);
 
         my $token = ${ $data }[$indx];
         #my $next_token = ${ $data }[$indx+1 % $#{ $data }];
