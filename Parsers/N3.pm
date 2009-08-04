@@ -43,6 +43,9 @@ sub parse {
     $self->_parse_triplestore($triples) 
         or croak "function population went wrong";
 
+    use YAML;
+    #print Dump($triples);
+
     return [$triples,$functions];
 }
 
@@ -52,7 +55,7 @@ sub _parse_n3 {
     my $data = shift;
     my $index_start = shift || 0;
 
-    for my $indx ($index_start..$#{ $data } ) {
+    for( my $indx = $index_start; $indx <= $#{ $data }; ++$indx ) {
 
         use YAML;
         #print Dump($triples);
@@ -104,7 +107,6 @@ sub _parse_n3 {
                 # not its defenition
                 next;
             } else {
-                #$self->_record_attribute($data, $indx);
                 $self->_record_func($data, $indx);
                 while((my $tok=$self->_next_token($data,$indx)) =~ /[^\.]/) {
                     ++$indx;
