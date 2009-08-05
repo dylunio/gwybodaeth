@@ -149,7 +149,7 @@ sub _get_verb_and_object {
             $self->_print_verb_and_object($verb, $obj, $row, $object);
         }
     } else {
-        $self->_print_verb_and_object($verb, $object, $row, $object);
+        $self->_print_verb_and_object($verb, $obj_text, $row, $object);
     }
 }
 
@@ -173,7 +173,11 @@ sub _print_verb_and_object {
         print "\"/>\n";
     } else {
         print ">";
-        print $esc->escape($self->_get_object($row,$unparsed_obj));
+        if (eval{$unparsed_obj->isa('Triples')}) {
+            print $esc->escape($self->_get_object($row,$unparsed_obj));
+        } else {
+            print $esc->escape($self->_get_object($row,$object));
+        }
         print "</" . $self->_if_parse($verb,$row) . ">\n";
     }
 }
