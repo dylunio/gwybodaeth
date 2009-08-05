@@ -14,12 +14,9 @@ package N3;
 
 use Carp qw(croak);
 
-my $triples = Triples->new();
-my $functions = {};
-
 sub new {
     my $class = shift;
-    my $self = { };
+    my $self = { triples => Triples->new(), functions => {} };
     bless $self, $class;
     return $self;
 }
@@ -40,10 +37,10 @@ sub parse {
 
     $self->_parse_n3($tokenized);
 
-    $self->_parse_triplestore($triples) 
+    $self->_parse_triplestore($self->{triples}) 
         or croak "function population went wrong";
 
-    return [$triples,$functions];
+    return [$self->{triples},$self->{functions}];
 }
 
 # Expects a reference to the tokenized data as a parameter
@@ -137,7 +134,7 @@ sub _parse_n3 {
         }
          
     }
-    return $triples;
+    return $self->{triples};
 }
 
 sub _next_token {
@@ -162,7 +159,9 @@ sub _parse_triple {
     my $subject = ${ $data }[$index];
 
     if ($self->_next_token($data, $index) eq ';') {
-        $index = $self->_get_verb_and_object($data, $index, $subject, $triples, $attr)
+        $index = $self->_get_verb_and_object($data, $index, 
+                                             $subject, $self->{triples}, 
+                                             $attr)
     }
     return $index;
 }
@@ -252,7 +251,7 @@ sub _record_func {
 
     my $func_triple = $self->_get_nested_triple($data, $index);
 
-    $functions->{$func_name} = $func_triple;
+    $self->{functions}->{$func_name} = $func_triple;
     return $index;
 }
 
@@ -271,8 +270,8 @@ sub _parse_triplestore {
     my $self = shift;
     my $triple = shift;
 
-    if (defined($functions)) {
-        $self->_parse_functions($functions) 
+    if (defined($self->{functions})) {
+        $self->_parse_functions($self->{functions}) 
             or croak "Unable to parse functions";
     }
 
@@ -296,11 +295,11 @@ sub _populate_func {
     my $triple = shift;
 
     for my $tkey (keys %{ $triple }) {
-        for my $fkey ( keys %{ $functions } ) {
+        for my $fkey ( keys %{ $self->{functions} } ) {
             for my $i (0..$#{ $triple->{$tkey}{'obj'} }) {
                 my $obj = $triple->{$tkey}{'obj'}[$i];
                 if ($obj eq $fkey) {
-                    #$triple->{$tkey}{'obj'}[$i] = $functions->{$fkey};
+                    #$triple->{$tkey}{'obj'}[$i] = $self->{functions}->{$fkey};
                     #$self->_populate_func($triple);
                 }
             }

@@ -43,3 +43,12 @@ $list = [ '!', '@', '#', '$', '%', '^ ' ];
 $tok_list = [ '!', '@', '#', '$', '%', '^' ];
 
 is_deeply( $tokenizer->tokenize($list), $tok_list, "punctuation");
+
+# N3 test
+my @data = ( '<Ex:$4>',
+          '  a foaf:Person ;',
+          '  foaf:name "Ex:$4" .' );
+$tok_list = [ '<Ex:$4>', 'a', 'foaf:Person', ';',
+              'foaf:name', '"Ex:$4"', '.' ];
+
+is_deeply( $tokenizer->tokenize(\@data), $tok_list, "n3" );

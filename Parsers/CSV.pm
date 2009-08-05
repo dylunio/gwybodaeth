@@ -12,9 +12,6 @@ sub new {
     my $class = shift;
     my $self = { quote_char => '"',
                  sep_char => ',' };
-    my $quote_char = shift;
-    print $quote_char;
-    if ($quote_char) { $self->{quote_char} = $quote_char };
     bless $self, $class;
     return $self;
 }
