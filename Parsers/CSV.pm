@@ -6,10 +6,15 @@ use strict;
 package CSV;
 
 use Carp qw(croak);
+use Text::CSV;
 
 sub new {
     my $class = shift;
-    my $self = { };
+    my $self = { quote_char => '"',
+                 sep_char => ',' };
+    my $quote_char = shift;
+    print $quote_char;
+    if ($quote_char) { $self->{quote_char} = $quote_char };
     bless $self, $class;
     return $self;
 }
@@ -21,10 +26,18 @@ sub parse {
 
     my @rows;
     my $i;
+    my $csv = Text::CSV->new( {binary => 1, 
+                               quote_char => $self->{quote_char},
+                               sep_char => $self->{sep_char} 
+                            } );
     
-    for (@data) {
-        my @fields = split ',', $_;
-        $rows[$i++] = \@fields;
+    for my $row (@data) {
+        if ($csv->parse($row)) {
+            my @fields = $csv->fields();
+            $rows[$i++] = \@fields;
+        } else {
+            croak "unable to parse row: " . $csv->error_input;
+        }
     }
 
     return \@rows;
