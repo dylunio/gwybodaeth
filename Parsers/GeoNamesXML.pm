@@ -25,61 +25,11 @@ sub parse {
         $string .= $line;
     }
 
-    $xml->parse($string);
-
-    return $xml;
-}
-
-sub _char_parse {
-    ref(my $self = shift) or croak "instance variable expected";
-    my $chars = shift;
-    my $index_start = shift || 0;
-    my $types = shift || {};
-
-    for my $i ($index_start..$#{ $chars }) {
-        if ($chars->[$i] eq '<') {
-            $self->_tag($chars,$i);
-        }
+    if($xml->safe_parse($string)) {
+        return $xml;
     }
 
-    return $types;
-}
-
-sub _tag {
-    ref(my $self = shift) or croak "instance variable expected";
-    my $chars = shift;
-    my $index = shift;
-
-    my $type = undef;
-    my $i = $index;
-    
-    # add 1 to get over the < char which got us to this method.
-    for $i ($index..$#{ $chars }) {
-
-        if ($chars->[$i] =~ /[\>\?]/) { # closing tag
-            last;
-        }
-        if ($chars->[$i] =~ /\s/) { # whitespace
-            $self->_attribute($chars, $i);
-        } else {
-            $type .= $chars->[$i];
-        }
-    
-    }
-
-    if ( defined $type ) {
-        $type =~ s#[<>/]##g;
-        $types{$type} = { attribute => undef, data => undef };
-    }
-
-    return $i;
-}
-
-sub _attribute {
-    ref(my $self = shift) or croak "instance variable expected";
-    my $chars = shift;
-    my $index = shift;
-    
-    return 1;
+    # if we've reached here something has gone wrong, return a fail
+    return 0;
 }
 1;
