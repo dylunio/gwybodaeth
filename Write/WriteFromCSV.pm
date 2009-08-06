@@ -41,17 +41,12 @@ sub write_rdf {
 
     $self->_write_meta_data();
 
-    use YAML;
-    #print Dump($triples);
-    
     for my $row (@pure_data) {
         #$self->_write_triples($row, $triple_data);
         $self->_really_write_triples($row,$triples);
     }
     my %ids;
-    use YAML;
-    #print Dump($functions);
-   for my $key (reverse keys %{ $functions }) {
+    for my $key (reverse keys %{ $functions }) {
         for my $row (@pure_data) {
             my $id = $self->_extract_field($row,$key);
             next if (exists $ids{$id});
