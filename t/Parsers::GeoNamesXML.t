@@ -20,7 +20,7 @@ my $xml = [ '<root>',
             '</root>'
           ];
 
-my $twig = $gnx->parse(@{ $xml });
+$twig = $gnx->parse(@{ $xml });
 
 ok( eval{ $twig->isa('XML::Twig') }, 'returns twig' );
 
@@ -28,7 +28,7 @@ ok( eval{ $twig->isa('XML::Twig') }, 'returns twig' );
 my $cruft = [ 'this is some', '<a href="cruft">', 'to trip',
               'up the', 'PaRsEr!!' ];
 
-my $twig = $gnx->parse(@{ $cruft });
+$twig = $gnx->parse(@{ $cruft });
 
 is( $twig, 0, 'returns 0 on cruft' );
 
