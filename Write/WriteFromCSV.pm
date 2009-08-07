@@ -59,4 +59,40 @@ sub write_rdf {
 
     return 1;
 }
+
+# Parse the token to evaluate any if statements
+sub _if_parse {
+    my($self, $token, $row) = @_;
+
+    if ($token =~ m/\@If\((.+)\;(.+)\;(.+)\)/i) {
+        my($question,$true,$false) = ($1, $2, $3);
+
+        $true =~ s/\'//g;
+        $false =~ s/\'//g;
+
+        my @q_split = split '=', $question;
+
+        $q_split[0] =~ s/\'//g;
+        $q_split[1] =~ s/\'//g;
+
+        my $ans = "";
+        if ($token =~ m/\<Ex\:(.+\+)\@If/i ) {
+            ($ans .= $1) =~ s/\+//g;
+            $ans .= ":";
+        }
+
+        if ($q_split[0] =~ m/^\$(\d+)/) {
+            $q_split[0] = @{ $row }[$1-1];
+        }
+
+        if ($q_split[0] eq $q_split[1]) {
+            $ans .= $true;
+        } else {
+            $ans .= $false;
+        }
+        $token = $ans;
+    }
+
+    return $token
+}
 1;
