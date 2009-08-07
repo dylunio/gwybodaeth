@@ -54,7 +54,7 @@ stdout_is(\&write_test_1, $str, 'nested function' );
 
 @data = @map = undef;
 
-# @If grammer test
+# @If grammar test
 @data = ('name,sex', 'John,male', 'Sarah,female');
 
 @map = ( "[] a <Ex:foo+\@If(\$2='male';'Man';'Woman')> ;",
@@ -85,4 +85,4 @@ sub write_test_2 {
                           $csv_parse->parse(@data));
 }
 
-stdout_is(\&write_test_2, $str, '@If grammer');
+stdout_is(\&write_test_2, $str, '@If grammar');

@@ -106,7 +106,7 @@ is what the \verb!var! in \verb!Ex:$var! referes to. For CSV \verb!var! refers
 to the row's column number (starting from 1); for XML \verb!var!  referes to
 a XML tag within the block being converted.
 
-An example of the currently supported grammer for CSV conversion is shown
+An example of the currently supported grammar for CSV conversion is shown
 in Figure \ref{fig:map4}. This mapping makes each row a Person subject with
 the email taken from the third column; the name being a concatenation
 of the first and second columns; the nickname being taken from the first
@@ -167,11 +167,11 @@ to allow inline functions. This is useful for short functions, however for more
 advanced functions the grammar used in Figure~\ref{fig:map4} is more suitable.
 
 An explanation of a number of the specific mapping grammar is in Table
-~\ref{tab:grammer}.  
+~\ref{tab:grammar}.  
 
 \begin{table}
 \caption{Table of supported N3 grammar.}
-\label{tab:grammer}
+\label{tab:grammar}
 \begin{tabular}[!h]{|c|p{09cm}|}
 \hline
 \multicolumn{2}{|r|}{Input: All}\\
@@ -209,7 +209,7 @@ contain strings.
 Currently if the anchor is a word \texttt{gwybodaeth} will use the
 \verb!rdf:ID! syntax, otherwise it will use the \verb!rdf:about! syntax. In
 all cases \verb!rdf:resource! will refer to the anchor. The syntax for setting
-and referring to references is set out in table~\ref{tab:grammer}.
+and referring to references is set out in table~\ref{tab:grammar}.
 
 Due to the requirement for unique IDs we must avoid clashes. In order to do
 this a system of precedence has been put in place in the mapping file. A

@@ -41,42 +41,6 @@ sub _write_triples {
 }
 
 # This is a subclass from Write.pm
-sub _extract_field {
-    my $self = shift;
-    my $data = shift;
-    my $field = shift;
-
-    my $texts = [];
-
-    # The object is a specific field
-    if ($field =~ m/^\"Ex:\$(\w+\/?\w*)\"$/) {
-        my $keyword = $1;
-        for my $node ($data->findnodes("$keyword")) {
-            if (defined($node->text())) {
-                push @{ $texts }, $node->text();
-            }
-        }
-        return $texts;
-    }
-    # The object is a concatination of fields 
-    elsif ($field =~ m/^\"Ex:.*\+/) {
-        return $self->_cat_field($data, $field);
-    } elsif ($field =~ m/^\@Split/ ) {
-        return $self->_split_field($data, $field);
-    } elsif ($field =~ m/^\<Ex:\$(\w\/?\w*)\>$/) {
-        my $keyword = $1;
-        for my $node ($data->findnodes("$keyword")) {
-            if (defined($node->text())) {
-                push @{ $texts }, $node->text();
-            }
-        }
-        return $texts;
-    }
-
-    # Allow for a bareword field;
-    return $field;
-}
-
 sub _cat_field {
     my $self = shift;
     my $data = shift;
@@ -91,12 +55,7 @@ sub _cat_field {
     for my $val (@values) {
         # Extract ${tag} variables from the data
         if ($val =~ m/\$(\w+\/?\w*)/) {
-            my $keyword = $1;
-            for my $node ($data->findnodes("$keyword")) {
-                if (defined($node->text())) {
-                    push @{ $texts }, $node->text();
-                }
-            }
+            push @{ $texts }, $self->_get_field($data,$1);
         }
         # Put a space; 
         elsif ($val =~ m/\'\s*\'/) {
@@ -127,5 +86,18 @@ sub _split_field {
     }
 
     return $field;
+}
+
+sub _get_field {
+    my($self, $data, $keyword) = @_;
+
+    my $texts = [];
+
+    for my $node ($data->findnodes("$keyword")) {
+        if (defined($node->text())) {
+            push @{ $texts }, $node->text();
+        }
+    }
+    return $texts;
 }
 1;

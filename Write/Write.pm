@@ -18,35 +18,24 @@ sub new {
     return $self;
 }
 
-
 sub _extract_field {
     my $self = shift;
     my $data = shift;
     my $field = shift;
 
     # The object is a specific field
-    if ($field =~ m/^\"Ex:\$(\d+)\"$/) { 
-        my $field_num = int ($1-1); # we subtract 1 as arrays start at 0 not 1
-        if( @{$data}[$field_num] ) {
-            return @{ $data }[$field_num];
-        }
+    if ($field =~ m/^\"Ex:\$(\w+\/?\w*)\"$/) { 
+        return $self->_get_field($data,$1);
     }
     # The object is a concatination of fields 
     elsif ($field =~ m/^\"Ex:.*\+/) {
         return $self->_cat_field($data, $field);
     }
-    elsif ($field =~ m/^\$(\d+)$/) {
-        my $field_num = int ($1 -1);
-        if( @{$data}[$field_num] ) {
-            return @{ $data }[$field_num];
-        }
+    elsif ($field =~ m/^\$(\w+\/?\w*)$/) {
+        return $self->_get_field($data,$1);
     } 
-    elsif ($field =~ m/^\<Ex:\$(\d+)\>$/) {
-        my $field_num = int ($1-1);
-        if( @{$data}[$field_num] ) {
-            chomp(my $field_text = @{ $data }[$field_num]);
-            return $field_text;
-        }
+    elsif ($field =~ m/^\<Ex:\$(\w+\/?\w*)\>$/) {
+        return $self->_get_field($data,$1);
     } elsif ( $field =~ m/\@Split/) {
         return $self->_split_field($data, $field);
     }
@@ -67,11 +56,8 @@ sub _cat_field {
 
     for my $val (@values) {
         # Extract ${num} variables from data
-        if ($val =~ m/\$(\d+)/) {
-            my $field_num = int ($1 -1);
-            if (@{ $data }[$field_num]) {
-                $string .= @{ $data }[$field_num];
-            }
+        if ($val =~ m/\$(\w+)/) {
+            $string .= $self->_get_field($data,$1);
         }
         # Put a space; 
         elsif ($val =~ m/\'\s*\'/) {
@@ -91,10 +77,9 @@ sub _split_field {
     my @strings;
     
     if ($field =~ m/\@Split\(Ex:\$(\d+),"(.)"\)/) {
-        my $field_num = $1 - 1;
         my $delimeter = $2;
 
-        @strings =  split /$delimeter/, @{ $data }[$field_num];
+        @strings = split /$delimeter/, $self->_get_field($data,$1);
         return \@strings;
     }
 
@@ -219,5 +204,44 @@ sub _about_or_id {
         print ' rdf:ID="';
     }
     return $text;
+}
+sub _if_parse {
+    my($self, $token, $row) = @_;
+
+    if ($token =~ m/\@If\((.+)\;(.+)\;(.+)\)/i) {
+        my($question,$true,$false) = ($1, $2, $3);
+
+        $true =~ s/\'//g;
+        $false =~ s/\'//g;
+
+        my @q_split = split '=', $question;
+
+        $q_split[0] =~ s/\'//g;
+        $q_split[1] =~ s/\'//g;
+
+        my $ans = "";
+        if ($token =~ m/\<Ex\:(.+\+)\@If/i ) {
+            ($ans .= $1) =~ s/\+//g;
+            $ans .= ":";
+        }
+
+        if ($q_split[0] =~ m/^\$(\w+)/) {
+            $q_split[0] = $self->_get_field($row,$1);
+        }
+
+        # If the returned field is an ARRAY join the elements
+        # into one scalar string.
+        if (ref($q_split[0]) eq 'ARRAY') {
+            $q_split[0] = join ' ', @{ $q_split[0] };
+        }
+
+        if ($q_split[0] eq $q_split[1]) {
+            $ans .= $true;
+        } else {
+            $ans .= $false;
+        }
+        $token = $ans;
+    }
+    return $token;
 }
 1;
