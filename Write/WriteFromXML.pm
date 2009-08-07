@@ -61,6 +61,8 @@ sub _extract_field {
     # The object is a concatination of fields 
     elsif ($field =~ m/^\"Ex:.*\+/) {
         return $self->_cat_field($data, $field);
+    } elsif ($field =~ m/^\@Split/ ) {
+        return $self->_split_field($data, $field);
     } elsif ($field =~ m/^\<Ex:\$(\w\/?\w*)\>$/) {
         my $keyword = $1;
         for my $node ($data->findnodes("$keyword")) {
@@ -106,5 +108,24 @@ sub _cat_field {
         }
     }
     return join '', @{ $texts };
+}
+
+sub _split_field {
+    my($self, $data, $field) = @_;
+
+    my @strings;
+    
+    if ($field =~ m/\@Split\(Ex:\$(\w+\/?\w*),"(.)"\)/) {
+        my $keyword = $1;
+        my $delimeter = $2;
+        for my $node ($data->findnodes("$keyword")) {
+            if (defined($node->text())) {
+                push @strings, split /$delimeter/,  $node->text();
+            }
+        }
+        return \@strings;
+    }
+
+    return $field;
 }
 1;
