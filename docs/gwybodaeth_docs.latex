@@ -38,6 +38,7 @@ Revision: \VCRevision
 \end{center}
 
 \tableofcontents
+\listoftables
 
 \section{Usage}
 
@@ -169,6 +170,8 @@ An explanation of a number of the specific mapping grammar is in Table
 ~\ref{tab:grammer}.  
 
 \begin{table}
+\caption{Table of supported N3 grammar.}
+\label{tab:grammer}
 \begin{tabular}[!h]{|c|p{09cm}|}
 \hline
 \multicolumn{2}{|r|}{Input: All}\\
@@ -184,14 +187,16 @@ As an object it references the defined function with \verb!rdf:resource!.\\
 \hline
 + & Allows for the concatenation within the field.\\ 
 \hline
+@Split(\emph{field},``\emph{delimiter}") & Splits up \emph{field} on the
+\emph{delimiter} so that one field can be RDFized into many
+predicate$\rightarrow$object pairs.\\ 
+\hline
 \multicolumn{2}{|r|}{Input: CSV}\\
 \hline
 @If(\emph{condition},\emph{true},\emph{false}) & Evaluates \emph{condition} and
 returns \emph{true} if the condition is true, otherwise it returns \emph{false}. \\
 \hline
 \end{tabular}
-\caption{Table of supported N3 grammar.}
-\label{tab:grammer}
 \end{table}
 \subsubsection{References}
 The ability to reference data within a document is one of the strengths of
