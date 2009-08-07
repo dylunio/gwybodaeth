@@ -47,6 +47,8 @@ sub _extract_field {
             chomp(my $field_text = @{ $data }[$field_num]);
             return $field_text;
         }
+    } elsif ( $field =~ m/\@Split/) {
+        return $self->_split_field($data, $field);
     }
     
     # If it doesn't match any of the above, allow it to be a bareword field
@@ -81,6 +83,22 @@ sub _cat_field {
         }
     }
     return $string;
+}
+
+sub _split_field {
+    my($self, $data, $field) = @_;
+
+    my @strings;
+    
+    if ($field =~ m/\@Split\(Ex:\$(\d+),"(.)"\)/) {
+        my $field_num = $1 - 1;
+        my $delimeter = $2;
+
+        @strings =  split /$delimeter/, @{ $data }[$field_num];
+        return \@strings;
+    }
+
+    return $field;
 }
 
 sub _write_meta_data {

@@ -123,12 +123,12 @@ sub _parse_n3 {
             return $indx;
         }
 
-        if ($token =~ m/\./) {
+        if ($token =~ m/^\.$/) {
             #logic
             next;
         }
 
-        if ($token =~ m/\;/) {
+        if ($token =~ m/^\;$/) {
             #logic
             next;
         }
@@ -181,7 +181,7 @@ sub _get_verb_and_object {
         $object = $self->_get_object($data, ++$index);
 
         if (defined($object) and defined($verb)) {
-            if ($object =~ /[\;\]]/ ) { next };
+            if ($object =~ /^[\;\]]$/ ) { next };
 
             $triple->store_triple($subject, $verb, $object);
         } else { next; }
