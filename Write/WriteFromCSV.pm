@@ -56,7 +56,7 @@ sub write_rdf {
     }
 
     print "</rdf:RDF>\n";
-
+    
     return 1;
 }
 

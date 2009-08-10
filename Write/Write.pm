@@ -11,6 +11,9 @@ package Write;
 
 use Carp qw(croak);
 
+# Allow output to be in utf8
+binmode( STDOUT, ':utf8' );
+
 sub new {
     my $class = shift;
     my $self = { ids => {} };
@@ -24,11 +27,13 @@ sub _extract_field {
     my $field = shift;
 
     # The object is a specific field
-    if ($field =~ m/^\"Ex:\$(\w+\/?\w*)\"$/) { 
+    if ($field =~ m/^\"Ex:\$(\w+\/?\w*)(\^\^.*)?\"$/) { 
+        # Remeber that _get_field() is often subclassed
+        # so we can't assume what form of data it returns.
         return $self->_get_field($data,$1);
     }
     # The object is a concatination of fields 
-    elsif ($field =~ m/^\"Ex:.*\+/) {
+    elsif ($field =~ m/^[\"\<]Ex:.*\+/) {
         return $self->_cat_field($data, $field);
     }
     elsif ($field =~ m/^\$(\w+\/?\w*)$/) {
@@ -48,7 +53,7 @@ sub _extract_field {
 sub _cat_field {
     my $self = shift;
     my $data = shift;
-    (my $field = shift) =~ s/Ex://;
+    (my $field = shift) =~ s/.Ex://;
 
     my $string = "";
 
@@ -71,6 +76,7 @@ sub _cat_field {
     return $string;
 }
 
+# How to interpret the @Split grammar
 sub _split_field {
     my($self, $data, $field) = @_;
 
@@ -114,7 +120,8 @@ sub _really_write_triples {
 
     for my $triple_key ( keys %{ $triples } ) {
 
-        print "<".$self->_if_parse($triple_key,$row);
+        my $subject = $self->_if_parse($triple_key,$row);
+        print "<".$subject;
         if ($id) {
             chomp(my $id_text = $self->_extract_field($row,$id));
             if (ref($id_text) eq 'ARRAY') {
@@ -135,7 +142,7 @@ sub _really_write_triples {
                                 $triples->{$triple_key}{'obj'}[$indx],
                                 $row);
         }
-        print "</".$self->_if_parse($triple_key,$row).">\n";
+        print "</".$subject.">\n";
     }
 }
 
@@ -160,7 +167,9 @@ sub _print_verb_and_object {
     my ($self, $verb, $object, $row, $unparsed_obj) = @_;
     my $esc = Escape->new();
 
-    print "<" . $self->_if_parse($verb,$row);
+    my $predicate = $self->_if_parse($verb,$row);
+    my $obj="";
+    print "<" . $predicate;
 
     if ( $unparsed_obj =~ m/\<Ex:\$\w+\/?\w*\>$/ ) {
         # We have a reference
@@ -171,17 +180,20 @@ sub _print_verb_and_object {
                 print $esc->escape($obj);
             }
         } else {
-            print $esc->escape($parsed_obj);
+            $obj = $esc->escape($parsed_obj);
+            print $obj;
         }
         print "\"/>\n";
     } else {
         print ">";
         if (eval{$unparsed_obj->isa('Triples')}) {
-            print $esc->escape($self->_get_object($row,$unparsed_obj));
+            $obj =  $esc->escape($self->_get_object($row,$unparsed_obj));
+            print $obj;
         } else {
-            print $esc->escape($self->_get_object($row,$object));
+            $obj = $esc->escape($self->_get_object($row,$object));
+            print $obj;
         }
-        print "</" . $self->_if_parse($verb,$row) . ">\n";
+        print "</" . $predicate . ">\n";
     }
 }
 
@@ -198,7 +210,7 @@ sub _get_object {
 sub _about_or_id {
     my($self, $text) = @_;
 
-    if ($text =~ /\s/) { 
+    if ($text =~ /\s/ or $text =~ /[^A-Z]+/) { 
         print ' rdf:about="#';
     } else {
         print ' rdf:ID="';
