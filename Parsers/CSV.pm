@@ -5,8 +5,33 @@ use strict;
 
 package CSV;
 
+=head1 NAME
+
+Parsers::CSV - Parses CSV into a data structure.
+
+=head1 SYNOPSIS
+
+    use CSV;
+
+    my $csv = CSV->new();
+
+    $csv->parse(@data);
+
+=head1 DESCRIPTION
+
+This module parses CSV documents into a data structure. This structure is an array of arrays.
+
+=over
+=cut
+
 use Carp qw(croak);
 use Text::CSV;
+
+=item new()
+
+Returns an instance of the Parsers::CSV class.
+
+=cut
 
 sub new {
     my $class = shift;
@@ -15,6 +40,13 @@ sub new {
     bless $self, $class;
     return $self;
 }
+
+=item parse(@data)
+
+Takes a CSV as an array of lines and outputs an array reference 
+to an array of arrays.
+
+=cut 
 
 sub parse {
     my($self, @data) = @_;
@@ -40,3 +72,10 @@ sub parse {
     return \@rows;
 } 
 1;
+__END__
+
+=back
+
+=head1 AUTHOR
+
+Iestyn Pryce, <imp25@cam.ac.uk>

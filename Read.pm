@@ -11,12 +11,48 @@ use LWP::UserAgent;
 use HTTP::Request;
 use Carp qw(croak);
 
+=head1 NAME
+
+Read - input data reader class for gwybodaeth
+
+=head1 SYNOPSIS
+
+    use Read;
+
+    my $r = Read->new();
+
+    $r->get_file_data("/home/foo/bar.csv");
+    $r->get_url_data("www.example.org/bar.csv");
+
+    $r->get_input_data();
+
+
+=head1 DESCRIPTION
+
+This module imports data from the URIs given to it.
+
+=over
+
+=item new()
+
+Create a new instance of Read.
+
+$r = Read->new();
+
+=cut
+
 sub new {
     my $class = shift;
     my $self = {'Data' => [] };
     bless $self, $class;
     return $self;
 }
+
+=item get_file_data($filename)
+
+This function gets data from $filename.
+
+=cut
 
 # Open a file and store its contents
 # Returns length of file data
@@ -36,6 +72,12 @@ sub get_file_data {
     return int $self->{Data};
 }
 
+=item get_url_data($url)
+
+This function gets data from $url.
+
+=cut
+
 # Open a URL download the body and store it
 # Returns true if successful
 sub get_url_data {
@@ -54,6 +96,12 @@ sub get_url_data {
     return $res->is_success;
 }
 
+=item get_input_data()
+
+This function returns an array contiaining the ingested data.
+
+=cut
+
 # Data return methods:
 sub get_input_data {
     ref(my $self = shift) or croak "instance variable needed";
@@ -61,4 +109,10 @@ sub get_input_data {
 }
 
 1; 
-# end package Read
+__END__
+
+=back
+
+=head1 AUTHOR
+
+Iestyn Pryce, <imp25@cam.ac.uk>

@@ -12,7 +12,33 @@ use Tokenize;
 
 package N3;
 
+=head1 NAME
+
+Parsers::N3 - Parses N3 into a data structure.
+
+=head1 SYNOPSIS
+
+    use N3;
+
+    my $n3 = N3->new();
+
+    $n3->parse(@data);
+
+=head1 DESCRIPTION
+
+This module converts N3 data into a data structure.
+
+=over
+
+=cut
+
 use Carp qw(croak);
+
+=item new()
+
+Returns an instance of the N3 class.
+
+=cut
 
 sub new {
     my $class = shift;
@@ -20,6 +46,14 @@ sub new {
     bless $self, $class;
     return $self;
 }
+
+=item parse(@data)
+
+Parses N3 from an array of rows, @data. Returns an array where the 
+first item is a reference to a hash of triples and the second item
+is a reference to a hash of functions.
+
+=cut
 
 sub parse {
     my($self, @data) = @_;
@@ -73,7 +107,7 @@ sub _parse_n3 {
             $self->_parse_triple($data, $indx);
             next;
         }
-    
+
         if ($token =~ m/^\=$/) {
             #logic
             next;
@@ -132,7 +166,7 @@ sub _parse_n3 {
             #logic
             next;
         }
-         
+
     }
     return $self->{triples};
 }
@@ -155,7 +189,7 @@ sub _parse_triple {
     my $attr  = shift;
 
     ++$index;
-    
+
     my $subject = ${ $data }[$index];
 
     if ($self->_next_token($data, $index) eq ';') {
@@ -185,7 +219,7 @@ sub _get_verb_and_object {
 
             $triple->store_triple($subject, $verb, $object);
         } else { next; }
-    
+
         if (eval {$object->isa('Triples')}) {
             #while ($self->_next_token($data,$index) =~ /[^\]]/) {
                 #++$index;
@@ -308,3 +342,10 @@ sub _populate_func {
     return 1;
 }
 1;
+__END__
+
+=back
+
+=head1 AUTHOR
+
+Iestyn Pryce, <imp25@cam.ac.uk>
