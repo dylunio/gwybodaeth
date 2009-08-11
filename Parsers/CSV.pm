@@ -22,6 +22,7 @@ Parsers::CSV - Parses CSV into a data structure.
 This module parses CSV documents into a data structure. This structure is an array of arrays.
 
 =over
+
 =cut
 
 use Carp qw(croak);

@@ -9,6 +9,20 @@ use Escape;
 
 package Write;
 
+=head1 NAME
+
+Write::Write - Main class for applying maps to data.
+
+=head1 SYNOPSIS
+
+    use base qw(Write);
+
+=head1 DESCRIPTION
+
+This class is intended to be subclassed thus has no public methods.
+
+=cut
+
 use Carp qw(croak);
 
 # Allow output to be in utf8
@@ -257,3 +271,8 @@ sub _if_parse {
     return $token;
 }
 1;
+__END__
+
+=head1 AUTHOR
+
+Iestyn Pryce, <imp25@cam.ac.uk>

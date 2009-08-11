@@ -5,12 +5,42 @@ use strict;
 
 package Tokenize;
 
+=head1 NAME
+
+Tokenize - Split up data on whitespace into tokens.
+
+=head1 SYNOPSIS
+
+    use Tokenize;
+
+    my $t = Tokenize->new();
+
+    $t->tokenize($data);
+
+=head1 DESCRIPTION
+
+This module tokenizes data, where a token is delimited by whitespace.
+
+=over
+
+=item new()
+
+Reterns an instance of the class.
+
+=cut
+
 sub new {
     my $class = shift;
     my $self = {};
     bless $self, $class;
     return $self;
 }
+
+=item tokenize($data)
+
+Tokenizes the data supplied in the array reference $data.
+
+=cut
 
 # Takes a reference to the input data as a parameter.
 sub tokenize {
@@ -65,3 +95,10 @@ sub _tokenize_clean {
     return $data;
 }
 1;
+__END__
+
+=back
+
+=head1 AUTHOR
+
+Iestyn Pryce, <imp25@cam.ac.uk>
