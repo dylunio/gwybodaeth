@@ -53,7 +53,11 @@ sub write_rdf {
         $self->_write_triples($child, $triple_data);
     }
 
-    print "</rdf:RDF>\n";
+    $self->_print2str("</rdf:RDF>\n");
+
+    my $xml = $self->_structurize();
+
+    $xml->print(pretty_print => 'nice');
 
     return 1;
 }

@@ -86,8 +86,11 @@ sub write_rdf {
         }
     }
 
-    print "</rdf:RDF>\n";
-    
+    $self->_print2str("</rdf:RDF>");
+
+    my $twig = $self->_structurize;
+    $twig->print();
+
     return 1;
 }
 

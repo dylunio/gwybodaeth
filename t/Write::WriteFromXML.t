@@ -66,10 +66,7 @@ EOF
 
 my $expected = <<EOF
 <?xml version="1.0"?>
-<rdf:RDF
-xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-xmlns:foo="http://foo.org/foo#"
->
+<rdf:RDF xmlns:foo="http://foo.org/foo#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 <rdf:Description>
 <foo:captial>Llundain</foo:captial>
 <foo:country rdf:resource="#Prydain Fawr"/>

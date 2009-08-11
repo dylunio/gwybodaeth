@@ -33,10 +33,10 @@ my @map;
 
 my $str = <<EOF
 <?xml version="1.0"?>
-<rdf:RDF
->
+<rdf:RDF>
 <foaf:Person>
-<foaf:office><foaf:Place>
+<foaf:office>
+<foaf:Place>
 <foaf:addy>John</foaf:addy>
 </foaf:Place>
 </foaf:office>
@@ -62,8 +62,7 @@ stdout_is(\&write_test_1, $str, 'nested function' );
 
 $str = <<EOF
 <?xml version="1.0"?>
-<rdf:RDF
->
+<rdf:RDF>
 <foo:Man>
 <foaf:name>John</foaf:name>
 </foo:Man>

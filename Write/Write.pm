@@ -24,15 +24,25 @@ This class is intended to be subclassed thus has no public methods.
 =cut
 
 use Carp qw(croak);
+use XML::Twig;
 
 # Allow output to be in utf8
 binmode( STDOUT, ':utf8' );
 
 sub new {
     my $class = shift;
-    my $self = { ids => {} };
+    my $self = { ids => {}, Data => ""};
     bless $self, $class;
     return $self;
+}
+
+sub _print2str {
+    my $self = shift;
+    my $str = shift;
+
+    $self->{Data} .= $str;
+
+    return 1;
 }
 
 sub _extract_field {
@@ -113,13 +123,13 @@ sub _write_meta_data {
     my $name_hash = $namespace->get_namespace_hash();
     
 
-    print "<?xml version=\"1.0\"?>\n<rdf:RDF\n";
+    $self->_print2str("<?xml version=\"1.0\"?>\n<rdf:RDF\n");
     for my $keys (keys %{ $name_hash }) {
         (my $key = $keys) =~ s/:$//;
         next if ($key eq "");
-        print "xmlns:$key=\"" . $name_hash->{$keys} . "\"\n";
+        $self->_print2str("xmlns:$key=\"" . $name_hash->{$keys} . "\"\n");
     }
-    print ">\n";
+    $self->_print2str(">\n");
     
     return 1;
 }
@@ -135,19 +145,19 @@ sub _really_write_triples {
     for my $triple_key ( keys %{ $triples } ) {
 
         my $subject = $self->_if_parse($triple_key,$row);
-        print "<".$subject;
+        $self->_print2str("<".$subject);
         if ($id) {
             chomp(my $id_text = $self->_extract_field($row,$id));
             if (ref($id_text) eq 'ARRAY') {
                 for my $obj (@{ $id_text }) {
-                    print $self->_about_or_id($obj);
+                    $self->_print2str($self->_about_or_id($obj));
                 }
             } else {
-                print $self->_about_or_id($id_text);
+                $self->_print2str($self->_about_or_id($id_text));
             }
-            print '"';
+            $self->_print2str('"');
         } 
-        print ">\n";
+        $self->_print2str(">\n");
 
         my @verbs = @{ $triples->{$triple_key}{'predicate'} };
         for my $indx (0..$#verbs ) {
@@ -156,7 +166,7 @@ sub _really_write_triples {
                                 $triples->{$triple_key}{'obj'}[$indx],
                                 $row);
         }
-        print "</".$subject.">\n";
+        $self->_print2str("</".$subject.">\n");
     }
 }
 
@@ -183,31 +193,31 @@ sub _print_verb_and_object {
 
     my $predicate = $self->_if_parse($verb,$row);
     my $obj="";
-    print "<" . $predicate;
+    $self->_print2str("<" . $predicate);
 
     if ( $unparsed_obj =~ m/\<Ex:\$\w+\/?\w*\>$/ ) {
         # We have a reference
-        print ' rdf:resource="#';
+        $self->_print2str(' rdf:resource="#');
         my $parsed_obj = $self->_get_object($row,$unparsed_obj);
         if (ref($parsed_obj) eq 'ARRAY') {
             for my $obj (@{ $parsed_obj }) {
-                print $esc->escape($obj);
+                $self->_print2str($esc->escape($obj));
             }
         } else {
             $obj = $esc->escape($parsed_obj);
-            print $obj;
+            $self->_print2str($obj);
         }
-        print "\"/>\n";
+        $self->_print2str("\"/>\n");
     } else {
-        print ">";
+        $self->_print2str(">");
         if (eval{$unparsed_obj->isa('Triples')}) {
             $obj =  $esc->escape($self->_get_object($row,$unparsed_obj));
-            print $obj;
+            $self->_print2str($obj);
         } else {
             $obj = $esc->escape($self->_get_object($row,$object));
-            print $obj;
+            $self->_print2str($obj);
         }
-        print "</" . $predicate . ">\n";
+        $self->_print2str("</" . $predicate . ">\n");
     }
 }
 
@@ -225,9 +235,9 @@ sub _about_or_id {
     my($self, $text) = @_;
 
     if ($text =~ /\s/ or $text =~ /[^A-Z]+/) { 
-        print ' rdf:about="#';
+        $self->_print2str(' rdf:about="#');
     } else {
-        print ' rdf:ID="';
+        $self->_print2str(' rdf:ID="');
     }
     return $text;
 }
@@ -269,6 +279,18 @@ sub _if_parse {
         $token = $ans;
     }
     return $token;
+}
+
+# Structure the serialized data string into an XML::Twig object.
+sub _structurize {
+    my $self = shift;
+
+    my $twig = XML::Twig->new(pretty_print => 'nice');
+
+    my $xml = $self->{Data};
+
+    $twig->safe_parse($xml);
+    return $twig;
 }
 1;
 __END__
