@@ -124,13 +124,15 @@ sub _split_field {
 }
 
 sub _get_field {
-    my($self, $data, $keyword) = @_;
+    my($self, $data, $keyword,$opt) = @_;
 
     my $texts = [];
 
+    unless (defined($opt)) { $opt = ""; }
+
     for my $node ($data->findnodes("$keyword")) {
         if (defined($node->text())) {
-            push @{ $texts }, $node->text();
+            push @{ $texts }, $node->text().$opt;
         }
     }
     return $texts;

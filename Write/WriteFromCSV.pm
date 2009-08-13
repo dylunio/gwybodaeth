@@ -95,10 +95,12 @@ sub write_rdf {
 }
 
 sub _get_field {
-    my($self, $row, $field) = @_;
+    my($self, $row, $field, $opt) = @_;
+
+    unless (defined($opt)) { $opt = ""; }
 
     # We subtract 1 as arrays start at 0, and spreadsheets at 1
-    return @{ $row }[$field - 1];
+    return @{ $row }[$field - 1] . $opt;
 }
 1;
 __END__

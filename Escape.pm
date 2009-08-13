@@ -50,7 +50,9 @@ sub escape {
     my $string = shift;
 
     # escape '&' chars.
-    $string =~ s/\s&\s/ &amp; /g;
+    $string =~ s/&amp;/\&/g;
+    $string =~ s/&/&amp;/g;
+    
     chomp($string);
 
     return $string;

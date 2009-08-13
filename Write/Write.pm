@@ -28,10 +28,12 @@ use XML::Twig;
 
 # Allow output to be in utf8
 binmode( STDOUT, ':utf8' );
+binmode( STDERR, ':utf8' );
 
 sub new {
     my $class = shift;
     my $self = { ids => {}, Data => ""};
+    $self->{XML} = XML::Twig->new(pretty_print => 'nice');
     bless $self, $class;
     return $self;
 }
@@ -42,6 +44,11 @@ sub _print2str {
 
     $self->{Data} .= $str;
 
+    #if ($self->{Data} =~ m/\>\s*$/) {
+        #my $twig = $self->{XML};
+        #$twig->safe_parse($self->{Data});
+    #}
+
     return 1;
 }
 
@@ -51,10 +58,14 @@ sub _extract_field {
     my $field = shift;
 
     # The object is a specific field
-    if ($field =~ m/^\"Ex:\$(\w+\/?\w*)(\^\^.*)?\"$/) { 
+    if ($field =~ m/^\"Ex:\$(\w+\/?\w*)((\^\^|\@).*)?\"$/) { 
         # Remeber that _get_field() is often subclassed
         # so we can't assume what form of data it returns.
-        return $self->_get_field($data,$1);
+        my $opt=$2;
+        #unless defined($opt) {
+        #    $opts = "";
+        #}
+        return $self->_get_field($data,$1,$2);
     }
     # The object is a concatination of fields 
     elsif ($field =~ m/^[\"\<]Ex:.*\+/) {
@@ -193,7 +204,7 @@ sub _print_verb_and_object {
 
     my $predicate = $self->_if_parse($verb,$row);
     my $obj="";
-    $self->_print2str("<" . $predicate);
+    $self->_print2str("<" . $predicate );
 
     if ( $unparsed_obj =~ m/\<Ex:\$\w+\/?\w*\>$/ ) {
         # We have a reference
@@ -285,11 +296,35 @@ sub _if_parse {
 sub _structurize {
     my $self = shift;
 
-    my $twig = XML::Twig->new(pretty_print => 'nice');
+    my $twig = $self->{XML};
 
     my $xml = $self->{Data};
 
     $twig->safe_parse($xml);
+
+    return $self->_set_datatype($twig);
+}
+
+sub _set_datatype {
+    my($self, $twig) = @_;
+
+    my $elt = $twig->root;
+    while( $elt = $elt->next_elt($twig->root) ) {
+        #print STDERR $elt->text."\n";
+        if ($elt->text_only =~ m/(.+)\^\^(\w+)$/ ) {
+           $elt->set_text($1);
+           $elt->set_att(
+                 'rdf:datatype' => "http://www.w3.org/TR/xmlschema-2/#".$2
+           );
+        } 
+        elsif ($elt->text_only =~ m/(.+)\@(\w+)$/ ) {
+            $elt->set_text($1);
+            $elt->set_att(
+                    'xml:lang' => $2
+            );
+        }
+    }
+
     return $twig;
 }
 1;
