@@ -89,3 +89,64 @@ sub write_test {
 }
 
 stdout_is(\&write_test, $expected, 'function and nesting');
+
+# ^^ grammar test
+
+@data = ( '<geonames>',
+          '<Country>',
+          '<name>England</name>',
+          '</Country>',
+          '</geonames>',
+        );
+
+@map = ('[] a foo:country ;',
+        'foo:name "Ex:$name^^string" .'
+       );
+
+$expected = <<EOF
+<?xml version="1.0"?>
+<rdf:RDF>
+<foo:country>
+<foo:name rdf:datatype="http://www.w3.org/TR/xmlschema-2/#string">England</foo:name>
+</foo:country>
+</rdf:RDF>
+EOF
+;
+
+$map_parse = $xml_parse = $xml_write = undef;
+$xml_write = WriteFromXML->new();
+$xml_parse = GeoNamesXML->new();
+$map_parse = N3->new();
+
+sub write_test_2 {
+    $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
+}
+
+stdout_is(\&write_test_2, $expected, '^^ grammar');
+
+# @lang test
+
+@map = ('[] a foo:country ;',
+        'foo:name "Ex:$name@en" .'
+       );
+
+$expected = <<EOF
+<?xml version="1.0"?>
+<rdf:RDF>
+<foo:country>
+<foo:name xml:lang="en">England</foo:name>
+</foo:country>
+</rdf:RDF>
+EOF
+;
+
+$map_parse = $xml_parse = $xml_write = undef;
+$xml_write = WriteFromXML->new();
+$xml_parse = GeoNamesXML->new();
+$map_parse = N3->new();
+
+sub write_test_3 {
+    $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
+}
+
+stdout_is(\&write_test_3, $expected, '@lang grammar');

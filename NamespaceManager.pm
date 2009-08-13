@@ -56,6 +56,9 @@ sub map_namespace {
     ref(my $self = shift) or croak "instance variable needed";
     my $data = shift;   # A referece to the data
 
+    # Clear what may already be in %namespace from a previous run
+    for (keys %namespace) { delete $namespace{$_}; };
+
     for my $line (@{ $data }) {
         if ($line =~ m/^\@prefix\s+(\S*:)\s+<(\S+)>\s+./) {
             $namespace{$1} = $2;

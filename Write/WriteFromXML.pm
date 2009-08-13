@@ -57,7 +57,7 @@ sub write_rdf {
 
     my $xml = $self->_structurize();
 
-    $xml->print(pretty_print => 'nice');
+    $xml->print();
 
     return 1;
 }

@@ -310,7 +310,6 @@ sub _set_datatype {
 
     my $elt = $twig->root;
     while( $elt = $elt->next_elt($twig->root) ) {
-        #print STDERR $elt->text."\n";
         if ($elt->text_only =~ m/(.+)\^\^(\w+)$/ ) {
            $elt->set_text($1);
            $elt->set_att(
