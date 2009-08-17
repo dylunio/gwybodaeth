@@ -4,6 +4,6 @@ use strict;
 
 use Test::Harness;
 
-my @tests = ( <*.t> );
+my @tests = ( <*.t>, <write/*.t>, <parsers/*.t> );
 
 runtests(@tests);

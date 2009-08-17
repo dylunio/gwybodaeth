@@ -1,0 +1,91 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use lib '../lib';
+use lib 'lib';
+
+use Carp qw(croak);
+use Getopt::Long;
+use XML::Twig;
+
+# gwybodaeth specific modules
+use Gwybodaeth::Parsers::N3;
+use Gwybodaeth::Read;
+
+# Load configuration
+my $conf_file = '/etc/gwybodaeth/gwybodaeth.conf';
+-e $conf_file or croak "you need a configuration file $conf_file: $!";
+
+my $twig = XML::Twig->new();
+$twig->parsefile($conf_file);
+
+my @converters = $twig->root->children( 'converter' );
+my %convert = ();
+
+for my $conv (@converters) {
+    my $name = $conv->first_child_text('name');
+    my $parser = $conv->first_child_text('parser');
+    my $writer = $conv->first_child_text('writer');
+    
+    $convert{$name} = { parser => $parser, writer => $writer };
+}
+
+my $data;
+my $map;
+my $in_type;
+
+GetOptions('src|source=s' => \$data,
+           'map=s' => \$map,
+           'input|in=s' => \$in_type );
+
+my $input = Gwybodaeth::Read->new();
+
+my $len;
+if (-f $data) {
+    $len = $input->get_file_data($data);
+} else {
+    $len = $input->get_url_data($data);
+}
+
+die "Empty file." if ($len < 1);
+
+my $mapping = Gwybodaeth::Read->new();
+
+if (-f $map) {
+    $len = $mapping->get_file_data($map);
+} else {
+    $len = $mapping->get_url_data($map);
+}
+
+die "Empty site." if ($len < 1);
+
+my @data = @{$mapping->get_input_data};
+
+my $map_parser = Gwybodaeth::Parsers::N3->new();
+
+my $map_triples = $map_parser->parse(@data);
+
+my $parser;
+my $writer;
+my $write_mod;
+my $parse_mod;
+if (defined($convert{$in_type})) {
+    $write_mod = $convert{$in_type}->{'writer'};
+    $parse_mod = $convert{$in_type}->{'parser'};
+    eval {
+        (my $wpkg = $write_mod) =~ s!::!/!g;
+        (my $ppkg = $parse_mod) =~ s!::!/!g;
+        require "$wpkg.pm";
+        require "$ppkg.pm";
+        import $parse_mod; 
+        import $write_mod;
+    };
+    $parser = $parse_mod->new();
+    $writer = $write_mod->new();
+} else {
+    croak "$in_type is not defined in the config file";
+}
+my $parsed_data_ref = $parser->parse(@{ $input->get_input_data });
+
+$writer->write_rdf($map_triples,$parsed_data_ref);
