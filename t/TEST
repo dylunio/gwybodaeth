@@ -1,9 +1,0 @@
-#!/usr/bin/env perl -w
-
-use strict;
-
-use Test::Harness;
-
-my @tests = ( <*.t>, <write/*.t>, <parsers/*.t> );
-
-runtests(@tests);
