@@ -183,7 +183,7 @@ sub _get_verb_and_object {
     my($self, $verb, $object, $row) = @_;
 
     my $obj_text = "";
-    unless ( eval{ $object->isa('Triples') } ) {
+    unless ( eval{ $object->isa('Gwybodaeth::Triples') } ) {
         $obj_text = $self->_get_object($row, $object);
     }
 
@@ -219,7 +219,7 @@ sub _print_verb_and_object {
         $self->_print2str("\"/>\n");
     } else {
         $self->_print2str(">");
-        if (eval{$unparsed_obj->isa('Triples')}) {
+        if (eval{$unparsed_obj->isa('Gwybodaeth::Triples')}) {
             $obj =  $esc->escape($self->_get_object($row,$unparsed_obj));
             $self->_print2str($obj);
         } else {
@@ -233,7 +233,7 @@ sub _print_verb_and_object {
 sub _get_object {
     my($self, $row, $object) = @_;
 
-    if (eval {$object->isa('Triples')}) {
+    if (eval {$object->isa('Gwybodaeth::Triples')}) {
         $self->_write_triples($row, $object);
     } else {
         return $self->_extract_field($row, $object);
