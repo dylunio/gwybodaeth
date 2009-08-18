@@ -50,6 +50,7 @@
 \bGwybodaeth-[\d\.\_]+
 
 svn-push.sh
+bld.sh
 \.csv$
 \.N3$
 \.local$
