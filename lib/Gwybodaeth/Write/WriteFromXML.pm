@@ -97,7 +97,7 @@ sub _cat_field {
 
     for my $val (@values) {
         # Extract ${tag} variables from the data
-        if ($val =~ m/\$(\w+\/?\w*)/) {
+        if ($val =~ m/\$([\:\w]+\/?[\:\w]*)/) {
             push @{ $texts }, $self->_get_field($data,$1);
         }
         # Put a space; 
@@ -117,7 +117,7 @@ sub _split_field {
 
     my @strings;
     
-    if ($field =~ m/\@Split\(Ex:\$(\w+\/?\w*),"(.)"\)/) {
+    if ($field =~ m/\@Split\(Ex:\$([\:\w]+\/?\w*),"(.)"\)/) {
         my $keyword = $1;
         my $delimeter = $2;
         for my $node ($data->findnodes("$keyword")) {

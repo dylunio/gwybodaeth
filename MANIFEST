@@ -29,7 +29,6 @@ t/parsers/geonamesxml.t
 t/parsers/n3.t
 t/parsers/xml.t
 t/read.t
-t/TEST
 t/tokenize.t
 t/triples.t
 t/write.t

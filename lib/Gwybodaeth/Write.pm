@@ -55,24 +55,21 @@ sub _extract_field {
     my $data = shift;
     my $field = shift;
 
+
     # The object is a specific field
-    if ($field =~ m/^\"Ex:\$(\w+\/?\w*)((\^\^|\@).*)?\"$/) { 
+    if ($field =~ m/^\"Ex:\$([\:\w]+\/?[\:\w]*)((\^\^|\@).*)?\"$/) { 
         # Remeber that _get_field() is often subclassed
         # so we can't assume what form of data it returns.
-        my $opt=$2;
-        #unless defined($opt) {
-        #    $opts = "";
-        #}
         return $self->_get_field($data,$1,$2);
     }
     # The object is a concatination of fields 
     elsif ($field =~ m/^[\"\<]Ex:.*\+/) {
         return $self->_cat_field($data, $field);
     }
-    elsif ($field =~ m/^\$(\w+\/?\w*)$/) {
+    elsif ($field =~ m/^\$([\:\w]+\/?[\:\w]*)$/) {
         return $self->_get_field($data,$1);
     } 
-    elsif ($field =~ m/^\<Ex:\$(\w+\/?\w*)\>$/) {
+    elsif ($field =~ m/^\<Ex:\$([\:\w]+\/?[\:\w]*)\>$/) {
         return $self->_get_field($data,$1);
     } elsif ( $field =~ m/\@Split/) {
         return $self->_split_field($data, $field);
@@ -94,7 +91,7 @@ sub _cat_field {
 
     for my $val (@values) {
         # Extract ${num} variables from data
-        if ($val =~ m/\$(\w+)/) {
+        if ($val =~ m/\$([\:\w]+)/) {
             $string .= $self->_get_field($data,$1);
         }
         # Put a space; 
