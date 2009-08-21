@@ -30,7 +30,7 @@ my @map;
           '         foaf:addy "Ex:$1"',
           '     ] .' );
 
-my $str = <<EOF
+my $str = <<'EOF'
 <?xml version="1.0"?>
 <rdf:RDF>
 <foaf:Person>
@@ -46,7 +46,7 @@ EOF
 
 sub write_test_1 {
     return $csv_write->write_rdf($map_parse->parse(@map), 
-                          $csv_parse->parse(@data));
+                                 $csv_parse->parse(@data));
 }
 
 stdout_is(\&write_test_1, $str, 'nested function' );
@@ -59,7 +59,7 @@ stdout_is(\&write_test_1, $str, 'nested function' );
 @map = ( "[] a <Ex:foo+\@If(\$2='male';'Man';'Woman')> ;",
          'foaf:name "Ex:$1" .' );
 
-$str = <<EOF
+$str = <<'EOF'
 <?xml version="1.0"?>
 <rdf:RDF>
 <foo:Man>
@@ -94,7 +94,7 @@ stdout_is(\&write_test_2, $str, '@If grammar');
           'foo:id "Ex:$2^^int" .',
        );
 
-$str = <<EOF
+$str = <<'EOF'
 <?xml version="1.0"?>
 <rdf:RDF>
 <foaf:Person>
@@ -126,7 +126,7 @@ stdout_is(\&write_test_3, $str, '^^ grammar');
           'foo:capital "Ex:$2@cy" .',
         );
 
-$str = <<EOF
+$str = <<'EOF'
 <?xml version="1.0"?>
 <rdf:RDF>
 <foo:country>

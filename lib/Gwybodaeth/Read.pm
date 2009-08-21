@@ -63,7 +63,7 @@ sub get_file_data {
     # Return if file doesn't exist
     unless ( -e $file ) { return 0 };
 
-    open my $fh, q{<}, $file or die "Couldn't open $file: $!";
+    open my $fh, q{<}, $file or croak "Couldn't open $file: $!";
 
     @{ $self->{Data} }= (<$fh>);
 

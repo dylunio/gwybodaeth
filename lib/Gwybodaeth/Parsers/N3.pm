@@ -183,7 +183,6 @@ sub _parse_triple {
     my $self  = shift;
     my $data  = shift;
     my $index = shift;
-    my $attr  = shift;
 
     ++$index;
 
@@ -192,13 +191,13 @@ sub _parse_triple {
     if ($self->_next_token($data, $index) eq ';') {
         $index = $self->_get_verb_and_object($data, $index, 
                                              $subject, $self->{triples}, 
-                                             $attr)
+                                            )
     }
     return $index;
 }
 
 sub _get_verb_and_object {
-    my($self, $data, $index, $subject, $triple, $attr) = @_;
+    my($self, $data, $index, $subject, $triple) = @_;
 
     my $verb;
     my $object;
@@ -284,15 +283,6 @@ sub _record_func {
 
     $self->{functions}->{$func_name} = $func_triple;
     return $index;
-}
-
-# Store a subject's rdf:ID value
-sub _record_attribute {
-    my($self, $data, $index) = @_;
-
-    my $attr_name = ${ $data }[$index];
-
-    return $self->_parse_triple($data, ++$index, $attr_name);
 }
 
 # Parse the main triples hash so that functions are

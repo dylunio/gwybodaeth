@@ -31,8 +31,6 @@ use XML::Twig;
 # Inherit from Gwybodaeth::Parsers::XML class
 use base 'Gwybodaeth::Parsers::XML';
 
-my %types;
-
 =item parse(@data)
 
 Parses an array of lines from @data returning a XMLTwig instance.

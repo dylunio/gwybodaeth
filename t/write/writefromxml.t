@@ -20,7 +20,7 @@ my $map_parse = Gwybodaeth::Parsers::N3->new();
 
 # Test which includes functions and nests
 
-my $data_str = <<EOF
+my $data_str = <<'EOF';
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <geonames>
 <country>
@@ -41,31 +41,29 @@ my $data_str = <<EOF
 </country>
 </geonames>
 EOF
-;
 
-my $map_str = <<EOF
-\@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-\@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos# > .
-\@prefix foo:     <http://foo.org/foo#> .
-\@prefix :        <#> .
+my $map_str = <<'EOF';
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos# > .
+@prefix foo:     <http://foo.org/foo#> .
+@prefix :        <#> .
 
-\@base <http://www.thisdoc.com> .
+@base <http://www.thisdoc.com> .
 
 []  a   rdf:Description ;
-    foo:captial "Ex:\$capital" ;
-    foo:country <Ex:\$countryName> ;       
-    foo:lat "Ex:\$lat" ;
-    foo:bar "Ex:\$foo/bar" ;
-    foo:lng "Ex:\$lng" .
+    foo:captial "Ex:$capital" ;
+    foo:country <Ex:$countryName> ;       
+    foo:lat "Ex:$lat" ;
+    foo:bar "Ex:$foo/bar" ;
+    foo:lng "Ex:$lng" .
 
-<Ex:\$countryName>
+<Ex:$countryName>
     a rdf:Description ;
-    foo:country "Ex:\$countryName" ;
-    foo:arian "Ex:\$currencyCode" .
+    foo:country "Ex:$countryName" ;
+    foo:arian "Ex:$currencyCode" .
 EOF
-;
 
-my $expected = <<EOF
+my $expected = <<'EOF';
 <?xml version="1.0"?>
 <rdf:RDF xml:base="http://www.thisdoc.com" xmlns:foo="http://foo.org/foo#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 <rdf:Description>
@@ -79,7 +77,6 @@ my $expected = <<EOF
 </rdf:Description>
 </rdf:RDF>
 EOF
-;
 
 my @data = split /\n/, $data_str;
 
@@ -104,7 +101,7 @@ stdout_is(\&write_test, $expected, 'function and nesting');
         'foo:name "Ex:$name^^string" .'
        );
 
-$expected = <<EOF
+$expected = <<'EOF';
 <?xml version="1.0"?>
 <rdf:RDF>
 <foo:country>
@@ -112,7 +109,6 @@ $expected = <<EOF
 </foo:country>
 </rdf:RDF>
 EOF
-;
 
 $map_parse = $xml_parse = $xml_write = undef;
 $xml_write = Gwybodaeth::Write::WriteFromXML->new();
@@ -131,7 +127,7 @@ stdout_is(\&write_test_2, $expected, '^^ grammar');
         'foo:name "Ex:$name@en" .'
        );
 
-$expected = <<EOF
+$expected = <<'EOF';
 <?xml version="1.0"?>
 <rdf:RDF>
 <foo:country>
@@ -139,7 +135,6 @@ $expected = <<EOF
 </foo:country>
 </rdf:RDF>
 EOF
-;
 
 $map_parse = $xml_parse = $xml_write = undef;
 $xml_write = Gwybodaeth::Write::WriteFromXML->new();

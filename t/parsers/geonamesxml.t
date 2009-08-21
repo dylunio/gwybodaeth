@@ -22,7 +22,7 @@ my $xml = [ '<root>',
 
 $twig = $gnx->parse(@{ $xml });
 
-ok( eval{ $twig->isa('XML::Twig') }, 'returns twig' );
+ok( $twig->isa('XML::Twig'), 'returns twig' );
 
 # Garbage input test
 my $cruft = [ 'this is some', '<a href="cruft">', 'to trip',

@@ -42,11 +42,6 @@ sub _print2str {
 
     $self->{Data} .= $str;
 
-    #if ($self->{Data} =~ m/\>\s*$/) {
-        #my $twig = $self->{XML};
-        #$twig->safe_parse($self->{Data});
-    #}
-
     return 1;
 }
 
@@ -63,15 +58,16 @@ sub _extract_field {
         return $self->_get_field($data,$1,$2);
     }
     # The object is a concatination of fields 
-    elsif ($field =~ m/^[\"\<]Ex:.*\+/) {
+    if ($field =~ m/^[\"\<]Ex:.*\+/) {
         return $self->_cat_field($data, $field);
     }
-    elsif ($field =~ m/^\$([\:\w]+\/?[\:\w]*)$/) {
+    if ($field =~ m/^\$([\:\w]+\/?[\:\w]*)$/) {
         return $self->_get_field($data,$1);
     } 
-    elsif ($field =~ m/^\<Ex:\$([\:\w]+\/?[\:\w]*)\>$/) {
+    if ($field =~ m/^\<Ex:\$([\:\w]+\/?[\:\w]*)\>$/) {
         return $self->_get_field($data,$1);
-    } elsif ( $field =~ m/\@Split/) {
+    } 
+    if ( $field =~ m/\@Split/) {
         return $self->_split_field($data, $field);
     }
     
@@ -177,7 +173,7 @@ sub _really_write_triples {
         }
         $self->_print2str("</".$subject.">\n");
     }
-    return 1;
+    return;
 }
 
 sub _get_verb_and_object {
@@ -237,10 +233,11 @@ sub _get_object {
     my($self, $row, $object) = @_;
 
     if (eval {$object->isa('Gwybodaeth::Triples')}) {
-        return $self->_write_triples($row, $object);
+        $self->_write_triples($row, $object);
     } else {
         return $self->_extract_field($row, $object);
     }
+    return "";
 }
 
 sub _about_or_id {
