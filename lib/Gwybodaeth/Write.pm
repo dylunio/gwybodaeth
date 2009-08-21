@@ -127,13 +127,16 @@ sub _write_meta_data {
 
     my $namespace = Gwybodaeth::NamespaceManager->new();
     my $name_hash = $namespace->get_namespace_hash();
-    
+    my $base = $namespace->get_base();
 
     $self->_print2str("<?xml version=\"1.0\"?>\n<rdf:RDF\n");
     for my $keys (keys %{ $name_hash }) {
         (my $key = $keys) =~ s/:$//;
         next if ($key eq "");
         $self->_print2str("xmlns:$key=\"" . $name_hash->{$keys} . "\"\n");
+    }
+    if (${ $base }) {
+        $self->_print2str("xml:base=\"${ $base }\"\n");
     }
     $self->_print2str(">\n");
     

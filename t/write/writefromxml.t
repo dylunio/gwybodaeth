@@ -48,6 +48,8 @@ my $map_str = <<EOF
 \@prefix foo:     <http://foo.org/foo#> .
 \@prefix :        <#> .
 
+\@base <http://www.thisdoc.com> .
+
 []  a   rdf:Description ;
     foo:captial "Ex:\$capital" ;
     foo:country <Ex:\$countryName> ;       
@@ -64,7 +66,7 @@ EOF
 
 my $expected = <<EOF
 <?xml version="1.0"?>
-<rdf:RDF xmlns:foo="http://foo.org/foo#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<rdf:RDF xml:base="http://www.thisdoc.com" xmlns:foo="http://foo.org/foo#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 <rdf:Description>
 <foo:captial>Llundain</foo:captial>
 <foo:country rdf:resource="#Prydain Fawr"/>

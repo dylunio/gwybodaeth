@@ -20,3 +20,14 @@ is_deeply($nm->map_namespace($data), $struct, 'simple @prefix');
 
 # get namespace
 is_deeply($nm->get_namespace_hash(), $struct, 'get namespace');
+
+# set base
+$nm = undef;
+$nm = Gwybodaeth::NamespaceManager->new();
+
+$data = [ '@base <http://www.example.org> .' ];
+$struct = "http://www.example.org";
+
+$nm->map_namespace($data);
+
+is(${ $nm->get_base } , $struct, 'get base');
