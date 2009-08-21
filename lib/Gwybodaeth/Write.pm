@@ -144,8 +144,8 @@ sub _write_meta_data {
 }
 
 sub _write_triples {
-    my $self = shift;
-    $self->_really_write_triples(@_);
+    my ($self,@vars) = @_;
+    return $self->_really_write_triples(@vars);
 }
 
 sub _really_write_triples {
@@ -177,6 +177,7 @@ sub _really_write_triples {
         }
         $self->_print2str("</".$subject.">\n");
     }
+    return 1;
 }
 
 sub _get_verb_and_object {
@@ -194,6 +195,7 @@ sub _get_verb_and_object {
     } else {
         $self->_print_verb_and_object($verb, $obj_text, $row, $object);
     }
+    return 1;
 }
 
 sub _print_verb_and_object {
@@ -228,13 +230,14 @@ sub _print_verb_and_object {
         }
         $self->_print2str("</" . $predicate . ">\n");
     }
+    return 1;
 }
 
 sub _get_object {
     my($self, $row, $object) = @_;
 
     if (eval {$object->isa('Gwybodaeth::Triples')}) {
-        $self->_write_triples($row, $object);
+        return $self->_write_triples($row, $object);
     } else {
         return $self->_extract_field($row, $object);
     }

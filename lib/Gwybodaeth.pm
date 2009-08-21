@@ -1,5 +1,8 @@
 #!/usr/bin/env perl
 
+use strict;
+use warnings;
+
 package Gwybodaeth;
 
 our $VERSION = "0.1";

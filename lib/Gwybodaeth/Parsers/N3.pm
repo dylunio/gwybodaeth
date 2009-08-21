@@ -241,7 +241,7 @@ sub _get_object {
     my($self, $data, $index) = @_;
 
     unless (defined(${ $data }[$index])) {
-        return undef;
+        return;
     }
 
     if ((${ $data }[$index] eq '[') 
@@ -292,7 +292,7 @@ sub _record_attribute {
 
     my $attr_name = ${ $data }[$index];
 
-    $self->_parse_triple($data, ++$index, $attr_name);
+    return $self->_parse_triple($data, ++$index, $attr_name);
 }
 
 # Parse the main triples hash so that functions are
