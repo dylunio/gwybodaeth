@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use strict;
+use warnings;
 
 use lib '../../lib';
 
@@ -85,7 +86,7 @@ my @data = split /\n/, $data_str;
 my @map = split /\n/, $map_str;
 
 sub write_test {
-    $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
+    return $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
 }
 
 stdout_is(\&write_test, $expected, 'function and nesting');
@@ -119,7 +120,7 @@ $xml_parse = Gwybodaeth::Parsers::GeoNamesXML->new();
 $map_parse = Gwybodaeth::Parsers::N3->new();
 
 sub write_test_2 {
-    $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
+   return $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
 }
 
 stdout_is(\&write_test_2, $expected, '^^ grammar');
@@ -146,7 +147,7 @@ $xml_parse = Gwybodaeth::Parsers::GeoNamesXML->new();
 $map_parse = Gwybodaeth::Parsers::N3->new();
 
 sub write_test_3 {
-    $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
+    return $xml_write->write_rdf($map_parse->parse(@map), $xml_parse->parse(@data));
 }
 
 stdout_is(\&write_test_3, $expected, '@lang grammar');

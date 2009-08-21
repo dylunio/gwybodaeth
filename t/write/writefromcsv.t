@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use strict;
+use warnings;
 
 use lib '../../lib';
 
@@ -44,7 +45,7 @@ EOF
 ;
 
 sub write_test_1 {
-    $csv_write->write_rdf($map_parse->parse(@map), 
+    return $csv_write->write_rdf($map_parse->parse(@map), 
                           $csv_parse->parse(@data));
 }
 
@@ -78,8 +79,8 @@ $csv_parse = Gwybodaeth::Parsers::CSV->new();
 
 
 sub write_test_2 {
-    $csv_write->write_rdf($map_parse->parse(@map), 
-                          $csv_parse->parse(@data));
+    return $csv_write->write_rdf($map_parse->parse(@map), 
+                                 $csv_parse->parse(@data));
 }
 
 stdout_is(\&write_test_2, $str, '@If grammar');
@@ -110,8 +111,8 @@ $map_parse = Gwybodaeth::Parsers::N3->new();
 $csv_parse = Gwybodaeth::Parsers::CSV->new();
 
 sub write_test_3 {
-    $csv_write->write_rdf($map_parse->parse(@map),
-                          $csv_parse->parse(@data));
+    return $csv_write->write_rdf($map_parse->parse(@map),
+                                 $csv_parse->parse(@data));
 }
 
 stdout_is(\&write_test_3, $str, '^^ grammar');
@@ -142,8 +143,8 @@ $map_parse = Gwybodaeth::Parsers::N3->new();
 $csv_parse = Gwybodaeth::Parsers::CSV->new();
 
 sub write_test_4 {
-    $csv_write->write_rdf($map_parse->parse(@map),
-                          $csv_parse->parse(@data));
+    return $csv_write->write_rdf($map_parse->parse(@map),
+                                 $csv_parse->parse(@data));
 }
 
 stdout_is(\&write_test_4, $str, '@lang grammar');

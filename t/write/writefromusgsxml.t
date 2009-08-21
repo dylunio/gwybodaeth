@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use strict;
+use warnings;
 
 use Test::More qw{no_plan};
 use Test::Output;
@@ -46,7 +47,7 @@ my @map = split /\n/, $map_str;
 my @data = split /\n/, $data_str;
 
 sub write_test_1 {
-    $usgs->write_rdf($map_parse->parse(@map),$xml_parse->parse(@data));
+    return $usgs->write_rdf($map_parse->parse(@map),$xml_parse->parse(@data));
 }
 
 stdout_is(\&write_test_1, $expected, 'simple feed');
