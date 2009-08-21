@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+use strict;
+
 use lib '../lib';
 
 use Test::More qw(no_plan);
