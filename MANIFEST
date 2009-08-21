@@ -17,6 +17,7 @@ lib/Gwybodaeth/Tokenize.pm
 lib/Gwybodaeth/Triples.pm
 lib/Gwybodaeth/Write.pm
 lib/Gwybodaeth/Write/WriteFromCSV.pm
+lib/Gwybodaeth/Write/WriteFromUsgsXML.pm
 lib/Gwybodaeth/Write/WriteFromXML.pm
 MANIFEST			This list of files
 META.yml
@@ -33,4 +34,5 @@ t/tokenize.t
 t/triples.t
 t/write.t
 t/write/writefromcsv.t
+t/write/writefromusgsxml.t
 t/write/writefromxml.t
