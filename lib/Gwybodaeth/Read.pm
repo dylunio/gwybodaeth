@@ -90,7 +90,11 @@ sub get_url_data {
     my $res = $browser->get($url);
 
     if ($res->is_success) {
-        @{ $self->{Data} } = split /\012\015?|\015\012?/, $res->decoded_content;
+        @{ $self->{Data} } = split /
+                            \n\r? # new line feed and possible carriage return 
+                            |     # OR
+                            \r\n? # carriage return and possible new line feed
+                            /x, $res->decoded_content;
     } 
 
     return $res->is_success;

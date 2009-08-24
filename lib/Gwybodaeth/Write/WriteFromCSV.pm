@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 
-use lib ('.');
+use lib q{.};
 
 package Gwybodaeth::Write::WriteFromCSV;
 
@@ -37,7 +37,7 @@ use Carp qw(croak);
 
 sub new {
     my $class = shift;
-    my $self = { ids => {}, Data => ""};
+    my $self = { ids => {}, Data => qq{}};
     $self->{XML} = XML::Twig->new(pretty_print => 'nice' );
     bless $self, $class;
     return $self;
@@ -63,7 +63,7 @@ sub write_rdf {
     # any metadata.
     my @pure_data;
     for my $row (0..$#{ $data }) {
-        if (@{$data}[$row]->[0] =~ /start\s+row/i) {
+        if (@{$data}[$row]->[0] =~ m/start\s+row/mix) {
             my $start = int @{$data}[$row]->[1];
             for ($start..$#{ $data }) {
                 push @pure_data, @{ $data }[$_];
@@ -89,7 +89,7 @@ sub write_rdf {
         for my $row (@pure_data) {
             my $id = $self->_extract_field($row,$key);
             next if (exists $ids{$id});
-            $ids{$id} = "";
+            $ids{$id} = qq{};
             $self->_really_write_triples($row, $functions->{$key},$key);
         }
     }
@@ -105,7 +105,7 @@ sub write_rdf {
 sub _get_field {
     my($self, $row, $field, $opt) = @_;
 
-    unless (defined($opt)) { $opt = ""; }
+    if (not defined($opt)) { $opt = qq{}; }
 
     # We subtract 1 as arrays start at 0, and spreadsheets at 1
     return @{ $row }[$field - 1] . $opt;

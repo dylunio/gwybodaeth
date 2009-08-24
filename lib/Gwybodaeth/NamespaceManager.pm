@@ -64,10 +64,28 @@ sub map_namespace {
     $base = "";
 
     for my $line (@{ $data }) {
-        if ($line =~ m/^\@prefix\s+(\S*:)\s+<(\S+)>\s+./) {
+        if ($line =~ m/^\@prefix    # string begins with a @prefix grammar
+                        \s+
+                        (\S*:)      # zero or more non whitespace chars
+                                    # followed by a colon - namespace key
+                        \s+
+                        <           # open angle bracket
+                        (\S+)       # one or more non whitepace chars
+                                    # - namespace value
+                        >           # close angle bracket  
+                        \s+
+                        .
+                        /x) {
             $namespace{$1} = $2;
         }
-        if ($line =~ m/^\@base\s+<([^>]*)>\s+.\s*$/) {
+        if ($line =~ m/^\@base      # string begins with a @base grammar
+                        \s+
+                        <([^>]*)>   # angle brackets enclosed by any non
+                                    # closing angle bracket chars - base
+                        \s+
+                        .           # any non \n char
+                        \s*
+                        $/x) {
             $base = $1;
         }
     }

@@ -52,22 +52,55 @@ sub _extract_field {
 
 
     # The object is a specific field
-    if ($field =~ m/^\"Ex:\$([\:\w]+\/?[\:\w]*)((\^\^|\@).*)?\"$/) { 
+    if ($field =~ m/^\"     # string's first char is a double quote
+                    Ex:
+                    \$      # $ sign
+                    (       # start variable scope
+                    [\:\w]+ # one or more word or colon chars
+                    \/?     # possible forward slash
+                    [\:\w]* # zero or more word or colon chars
+                    )       # end variable scope
+                    (       # start option scope
+                    (\^\^|\@)   # ^^ or @
+                    .*      # zero or more of any non \n chars
+                    )?      # end option scope and make the scope 
+                            # non essential
+                    \"$     # string's last cha is a double quote
+                    /x) { 
         # Remeber that _get_field() is often subclassed
         # so we can't assume what form of data it returns.
         return $self->_get_field($data,$1,$2);
     }
     # The object is a concatination of fields 
-    if ($field =~ m/^[\"\<]Ex:.*\+/) {
+    if ($field =~ m/^[\"\<] # string's first char is a double quote
+                            # or an opening angle bracket
+                    Ex:
+                    .*\+    # zero or more non \n char followed by a plus
+                    /x) {
         return $self->_cat_field($data, $field);
     }
-    if ($field =~ m/^\$([\:\w]+\/?[\:\w]*)$/) {
+    if ($field =~ m/^\$     # string's first char is a doller sign
+                    (       # start scope
+                    [\:\w]+ # one or more word or colon chars
+                    \/?     # possible forward slash
+                    [\:\w]* # zero or more word or colon chars
+                    )       # end scope
+                    $/x) {
         return $self->_get_field($data,$1);
     } 
-    if ($field =~ m/^\<Ex:\$([\:\w]+\/?[\:\w]*)\>$/) {
+    if ($field =~ m/^\<     # string's first char is an opening angle bracket
+                    Ex:
+                    \$      # $ sign
+                    (       # start scope
+                    [\:\w]+ # one or more word or colon chars
+                    \/?     # possible forward slash
+                    [\:\w]* # zero or more word or colon chars
+                    )       # close scope
+                    \>$     # string's last char is a closing angle bracket
+                    /x) {
         return $self->_get_field($data,$1);
     } 
-    if ( $field =~ m/\@Split/) {
+    if ( $field =~ m/\@Split/x) {
         return $self->_split_field($data, $field);
     }
     
@@ -79,19 +112,26 @@ sub _extract_field {
 sub _cat_field {
     my $self = shift;
     my $data = shift;
-    (my $field = shift) =~ s/.Ex://;
+    (my $field = shift) =~ s/
+                            # any char followed by Ex:
+                            .Ex://x;
 
-    my $string = "";
+    my $string = qq{};
 
-    my @values = split /\+/, $field;
+    my @values = split /\+/x, $field;
 
     for my $val (@values) {
         # Extract ${num} variables from data
-        if ($val =~ m/\$([\:\w]+)/) {
+        if ($val =~ m/\$    # $ sign
+                    (       # start variable scope
+                    [\:\w]+ # one or more word or colon characters
+                    )       # end variable scope
+                    /x) {
             $string .= $self->_get_field($data,$1);
         }
         # Put a space; 
-        elsif ($val =~ m/\'\s*\'/) {
+        elsif ($val =~ m/\'\s*\' # single quoted zero or more whitespace char
+                        /x) {
             $string .= " ";
         } 
         # Print a literal
@@ -108,10 +148,20 @@ sub _split_field {
 
     my @strings;
     
-    if ($field =~ m/\@Split\(Ex:\$(\d+),"(.)"\)/) {
+    if ($field =~ m/\@Split # Split grammar
+                    \(      # open bracket
+                    Ex:
+                    \$      # $ sign
+                    (       # start variable scope
+                    \d+     # one or more numeric character
+                    )       # end variable scope
+                    ,
+                    "(.)"   # doublpe quoted any non \n char - delimeter 
+                    \)      # close bracket
+                    /x) {
         my $delimeter = $2;
 
-        @strings = split /$delimeter/, $self->_get_field($data,$1);
+        @strings = split /$delimeter/x, $self->_get_field($data,$1);
         return \@strings;
     }
 
@@ -127,7 +177,9 @@ sub _write_meta_data {
 
     $self->_print2str("<?xml version=\"1.0\"?>\n<rdf:RDF\n");
     for my $keys (keys %{ $name_hash }) {
-        (my $key = $keys) =~ s/:$//;
+        (my $key = $keys) =~ s/
+                              # string ends in a colon
+                              :$//x;
         next if ($key eq "");
         $self->_print2str("xmlns:$key=\"" . $name_hash->{$keys} . "\"\n");
     }
@@ -202,7 +254,14 @@ sub _print_verb_and_object {
     my $obj="";
     $self->_print2str("<" . $predicate );
 
-    if ( $unparsed_obj =~ m/\<Ex:\$\w+\/?\w*\>$/ ) {
+    if ( $unparsed_obj =~ m/\<  # opening angle bracket 
+                            Ex:
+                            \$  # $ sign
+                            \w+ # one or more word chars
+                            \/? # a possible forward slash
+                            \w* # zero or more word chars
+                            \>$ # string ends with a closing angle brackt
+                            /x ) {
         # We have a reference
         $self->_print2str(' rdf:resource="#');
         my $parsed_obj = $self->_get_object($row,$unparsed_obj);
@@ -243,7 +302,8 @@ sub _get_object {
 sub _about_or_id {
     my($self, $text) = @_;
 
-    if ($text =~ /\s/ or $text =~ /[^A-Z]+/) { 
+    if ($text =~ /\s/x or $text =~ /[^A-Z]+ # one or more non capital letters/x)
+    { 
         $self->_print2str(' rdf:about="#');
     } else {
         $self->_print2str(' rdf:ID="');
@@ -253,24 +313,48 @@ sub _about_or_id {
 sub _if_parse {
     my($self, $token, $row) = @_;
 
-    if ($token =~ m/\@If\((.+)\;(.+)\;(.+)\)/i) {
+    if ($token =~ m/\@If
+                    \(      # open bracket
+                    (       # start question scope
+                    .+      # one or more non \n char
+                    )       # end question scope
+                    \;
+                    (       # start 'true' scope
+                    .+      # one or more non \n char
+                    )       # end 'true' scope
+                    \;
+                    (       # start 'false' scope
+                    .+
+                    )       # end 'false scope
+                    \)      # close bracket
+                    /ix) {
         my($question,$true,$false) = ($1, $2, $3);
 
-        $true =~ s/\'//g;
-        $false =~ s/\'//g;
+        $true =~ s/\'//gx;
+        $false =~ s/\'//gx;
 
-        my @q_split = split '=', $question;
+        my @q_split = split q{=}, $question;
 
-        $q_split[0] =~ s/\'//g;
-        $q_split[1] =~ s/\'//g;
+        $q_split[0] =~ s/\'//gx;
+        $q_split[1] =~ s/\'//gx;
 
-        my $ans = "";
-        if ($token =~ m/\<Ex\:(.+\+)\@If/i ) {
-            ($ans .= $1) =~ s/\+//g;
-            $ans .= ":";
+        my $ans = qq{};
+        if ($token =~ m/\<  # opening angle bracket
+                        Ex
+                        \:  # a colon
+                        (   # start scope
+                        .+  # one or more non \n chars
+                        \+  # a plus sign
+                        )   # end scope
+                        \@If/ix ) {
+            ($ans .= $1) =~ s/\+//gx;
+            $ans .= qq{:};
         }
 
-        if ($q_split[0] =~ m/^\$(\w+)/) {
+        if ($q_split[0] =~ m/^\$    # first char of the string is a $
+                            (\w+)   # one or more word characters scoped
+                                    # as the field
+                            /x) {
             $q_split[0] = $self->_get_field($row,$1);
         }
 
@@ -308,13 +392,28 @@ sub _set_datatype {
 
     my $elt = $twig->root;
     while( $elt = $elt->next_elt($twig->root) ) {
-        if ($elt->text_only =~ m/(.+)\^\^(\w+)$/ ) {
+        if ($elt->text_only =~ m/(  # begin text scope
+                                .+  # one or more of any non \n character
+                                )   # end text scope
+                                \^\^# matches ^^
+                                (   # begin datatype scope
+                                \w+ # one ore more word character
+                                )   # end datatype scope
+                                $   # end of string/x ) {
            $elt->set_text($1);
            $elt->set_att(
                  'rdf:datatype' => "http://www.w3.org/TR/xmlschema-2/#".$2
            );
         } 
-        elsif ($elt->text_only =~ m/(.+)\@(\w+)$/ ) {
+        elsif ($elt->text_only =~ m/
+                                (   # begin text scope
+                                .+  # one or more of any non \n character
+                                )   # end text scope
+                                \@  # 'at' symbol
+                                (   # begin lang scope
+                                \w+ # one or more word characters
+                                )   # end of lang scope
+                                $   # end of string/x ) {
             $elt->set_text($1);
             $elt->set_att(
                     'xml:lang' => $2

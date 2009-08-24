@@ -40,8 +40,8 @@ my $expected = <<'EOF';
 </rdf:RDF>
 EOF
 
-my @map = split /\n/, $map_str;
-my @data = split /\n/, $data_str;
+my @map = split /\n/x, $map_str;
+my @data = split /\n/x, $data_str;
 
 sub write_test_1 {
     return $usgs->write_rdf($map_parse->parse(@map),$xml_parse->parse(@data));

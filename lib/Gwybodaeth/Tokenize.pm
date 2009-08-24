@@ -49,8 +49,10 @@ sub tokenize {
     my @tokenized;
 
     for (@{ $data }) {
-        for (split /\s+/) {
-            next if /^\s*$/;
+        for (split /\s+/x) {
+            next if /
+                    # string is entirly whitespace or empty
+                    ^\s*$/x;
             push @tokenized, $_;
         }
     }
@@ -68,11 +70,20 @@ sub _tokenize_clean {
         
             # If a token begins with '<' but doesn't end with '>'
             # then the token has been split up.
-        if ((${$data}[$i] =~ /^\</ && ${$data}[$i] =~ /[^\>]$/)||
+        if ((${$data}[$i] =~ /^\< # line begins with a opening square bracket/x 
+                && 
+            ${$data}[$i] =~ /[^\>]$ # line doesn't end with a closing square
+                                    # bracket
+                            /x)
+            ||
             # If the token begins but doesn't end with " the token may
             # have been split up 
-            (${$data}[$i] =~ /^\"/ && ${$data}[$i] =~ /[^\"]$/)) {
-            
+            (${$data}[$i] =~ /^\" # line begins with a double quote/x 
+                && 
+             ${$data}[$i] =~ /
+                            [^\"]$ # line doesn't end with a double quote
+                             /x)) 
+            {
             # Concatinate the next line to the current
             # partial token. We add a space inbetween to repair from
             # the split operation. 

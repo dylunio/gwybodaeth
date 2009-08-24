@@ -88,78 +88,102 @@ sub _parse_n3 {
 
         my $subject;
 
-        if ($token =~ m/^\@prefix$/) {
+        if ($token =~ m/
+                        # whole string matches @prefix
+                        ^\@prefix$/x) {
             # logic
             next;
         }
 
-        if ($token =~ m/^\@base$/) {
+        if ($token =~ m/
+                        # whole string matches @base
+                        ^\@base$/x) {
             #logic
             next;
         }
 
         # Shorthands for common predicates
-        if ($token =~ m/^a$/) {
+        if ($token =~ m/
+                        # whole string matches: a
+                        ^a$/x) {
             # Should return a reference to a Triples type
             $self->_parse_triple($data, $indx);
             next;
         }
 
-        if ($token =~ m/^\=$/) {
+        if ($token =~ m/
+                        # whole string matches only: =
+                        ^\=$/x) {
             #logic
             next;
         }
 
-        if ($token =~ m/^\<\=$/) {
+        if ($token =~ m/
+                        # whole string matches only: <=
+                        ^\<\=$/x) {
             # logic
             next;
         }
 
-        if ($token =~ m/^\=\>$/) {
+        if ($token =~ m/
+                        # whole string matches only: =>
+                        ^\=\>$/x) {
             #logic
             next;
         }
         # end of predicate shorthands
 
-        if ($token =~ m/\<\s*Ex:.*\>/) {
+        if ($token =~ m/\<  # open angle bracket
+                        \s* # any number of whitespace chars
+                        Ex: #
+                        .*  # any number of any char except '\n'
+                        \>  # close angle bracket/x) {
             # record the next block as a 'function'
-            if ($next_token =~ m/[.;]/) {
+            if ($next_token =~ m/[.;] # either a period or comma/x) {
                 # This is the call to the function
                 # not its defenition
                 next;
             } else {
                 $self->_record_func($data, $indx);
-                while((my $tok=$self->_next_token($data,$indx)) =~ /[^\.]/) {
+                while((my $tok=$self->_next_token($data,$indx)) =~ /
+                                            [^\.]   # isn't a period
+                                            /x) {
                     ++$indx;
                 } 
                 return $self->_parse_n3($data,$indx);
             }
         }        
 
-        if ($token =~ m/\[/) {
-            if ($token =~ m/\[\]/) {
+        if ($token =~ m/\[ # matches [ /x) {
+            if ($token =~ m/
+                            \[\]    # matches []
+                            /x) {
                 #logic specific to 'something' bracket operator
                 next;
             }
             # logic
-            while((my $tok=$self->_next_token($data,$indx)) =~ /[^\]]/) {
+            while((my $tok=$self->_next_token($data,$indx)) =~ /
+                                        # any character which is not
+                                        # a right square brace
+                                                [^\]]
+                                                /x) {
                 ++$indx;
             } 
             $indx = $self->_parse_n3($data,$indx);
             next;
         }
 
-        if ($token =~ m/\]/) {
+        if ($token =~ m/\]/x) {
             # logic
             return $indx;
         }
 
-        if ($token =~ m/^\.$/) {
+        if ($token =~ m/^\.$/x) {
             #logic
             next;
         }
 
-        if ($token =~ m/^\;$/) {
+        if ($token =~ m/^\;$/x) {
             #logic
             next;
         }
@@ -211,7 +235,10 @@ sub _get_verb_and_object {
         $object = $self->_get_object($data, ++$index);
 
         if (defined($object) and defined($verb)) {
-            if ($object =~ /^[\;\]]$/ ) { next };
+            if ($object =~ /^[\;\]]$ # any string consisting of
+                                     # one comma or right square 
+                                     # brace
+                            /x ) { next };
 
             $triple->store_triple($subject, $verb, $object);
         } else { next; }

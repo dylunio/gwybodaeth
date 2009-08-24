@@ -42,7 +42,7 @@ $mapping_data is expected to be the output form Parsers::N3.
 
 sub new {
     my $class = shift;
-    my $self = { ids => {}, Data => ""};
+    my $self = { ids => {}, Data => qq{}};
     $self->{XML} = XML::Twig->new(pretty_print => 'nice');
     bless $self, $class;
     return $self;
@@ -88,28 +88,39 @@ sub _cat_field {
     my $self = shift;
     my $data = shift;
     my $field = shift;
-    $field =~ s/Ex://;
+    $field =~ s/Ex:/
+                # substitute with an empty string
+               /x;
 
-    my $string = "";
+    my $string = qq{};
     my $texts = [];
 
-    my @values = split /\+/, $field;
+    my @values = split /\+/x, $field;
 
     for my $val (@values) {
         # Extract ${tag} variables from the data
-        if ($val =~ m/\$([\:\w]+\/?[\:\w]*)/) {
+        if ($val =~ m/\$    # $ sign
+                    (       # start keyword scope
+                    [\:\w]+ # multiple word or colon characters
+                    \/?     # possible forward slash
+                    [\:\w]* # any number of word or colon characters
+                    )       # end keyword scope
+                    /x) {
             push @{ $texts }, $self->_get_field($data,$1);
         }
         # Put a space; 
-        elsif ($val =~ m/\'\s*\'/) {
-            push @{ $texts }, " ";
+        elsif ($val =~ m/\'     # open single quote
+                        \s*     # any number of whitespace chars
+                        \'      # close single quote
+                        /x) {
+            push @{ $texts }, qq{ };
         } 
         # Print a literal
         else {
             push @{ $texts }, $val;
         }
     }
-    return join '', @{ $texts };
+    return join q{}, @{ $texts };
 }
 
 sub _split_field {
@@ -117,12 +128,22 @@ sub _split_field {
 
     my @strings;
     
-    if ($field =~ m/\@Split\(Ex:\$([\:\w]+\/?\w*),"(.)"\)/) {
+    if ($field =~ m/\@Split # on the split grammar
+                    \(Ex:
+                    \$      # $ sign - variable prefix
+                    (       # begin keyword scope
+                    [\:\w]+ # multiple word characters or colons 
+                    \/?     # a possible forward slash
+                    \w*     # any number of word chars
+                    )       # end keyword scope
+                    ,
+                    "(.)"   # any character in quotes - the delimeter
+                    \)/x) {
         my $keyword = $1;
         my $delimeter = $2;
         for my $node ($data->findnodes("$keyword")) {
             if (defined($node->text())) {
-                push @strings, split /$delimeter/,  $node->text();
+                push @strings, split /$delimeter/x,  $node->text();
             }
         }
         return \@strings;
@@ -136,7 +157,7 @@ sub _get_field {
 
     my $texts = [];
 
-    unless (defined($opt)) { $opt = ""; }
+    if (not defined($opt)) { $opt = qq{}; }
 
     for my $node ($data->findnodes("$keyword")) {
         if (defined($node->text())) {
