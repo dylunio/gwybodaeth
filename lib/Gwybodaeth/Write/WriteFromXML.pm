@@ -49,7 +49,8 @@ sub new {
 }
 
 sub write_rdf {
-    ref(my $self = shift) or croak "instance variable needed";
+    ref(my $self = shift) 
+        or croak "instance variable needed";
     my $triple_data = shift;
     my $data = shift;
 
