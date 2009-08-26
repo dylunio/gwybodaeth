@@ -13,6 +13,26 @@ use XML::Twig;
 use Gwybodaeth::Parsers::N3;
 use Gwybodaeth::Read;
 
+sub show_help {
+    system("perldoc", "Gwybodaeth");
+}
+
+my $data;
+my $map;
+my $in_type;
+my $help;
+
+GetOptions('src|source=s' => \$data,
+           'map=s'      => \$map,
+           'input|in=s' => \$in_type,
+           'help|h'     =>  \$help );
+
+# Load help dialogue
+if (defined $help ) {
+    show_help;
+    exit 1;
+}
+
 # Load configuration
 my $conf_file = '/etc/gwybodaeth/gwybodaeth.conf';
 -e $conf_file or croak "you need a configuration file $conf_file: $!";
@@ -31,13 +51,6 @@ for my $conv (@converters) {
     $convert{$name} = { parser => $parser, writer => $writer };
 }
 
-my $data;
-my $map;
-my $in_type;
-
-GetOptions('src|source=s' => \$data,
-           'map=s' => \$map,
-           'input|in=s' => \$in_type );
 
 my $input = Gwybodaeth::Read->new();
 
