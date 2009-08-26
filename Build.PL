@@ -15,7 +15,7 @@ EOC
 
 my $build = $class->new(
     module_name => 'Gwybodaeth',
-    license => 'perl',
+    license => 'bsd',
     dist_author => 'Iestyn Pryce, <imp25@cam.ac.uk>',
     requires => {
                 'perl' => '>= 5.8.0',
