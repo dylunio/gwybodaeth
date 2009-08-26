@@ -19,6 +19,7 @@ lib/Gwybodaeth/Write.pm
 lib/Gwybodaeth/Write/WriteFromCSV.pm
 lib/Gwybodaeth/Write/WriteFromUsgsXML.pm
 lib/Gwybodaeth/Write/WriteFromXML.pm
+LICENSE
 MANIFEST			This list of files
 META.yml
 script/gwybodaeth

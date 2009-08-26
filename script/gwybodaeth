@@ -14,7 +14,7 @@ use Gwybodaeth::Parsers::N3;
 use Gwybodaeth::Read;
 
 sub show_help {
-    system("perldoc", "Gwybodaeth");
+    return system( "perldoc", "Gwybodaeth" );
 }
 
 my $data;
@@ -22,13 +22,15 @@ my $map;
 my $in_type;
 my $help;
 
-GetOptions('src|source=s' => \$data,
-           'map=s'      => \$map,
-           'input|in=s' => \$in_type,
-           'help|h'     =>  \$help );
+GetOptions(
+    'src|source=s' => \$data,
+    'map=s'        => \$map,
+    'input|in=s'   => \$in_type,
+    'help|h'       => \$help
+);
 
 # Load help dialogue
-if (defined $help ) {
+if ( defined $help ) {
     show_help;
     exit 1;
 }
@@ -40,40 +42,41 @@ my $conf_file = '/etc/gwybodaeth/gwybodaeth.conf';
 my $twig = XML::Twig->new();
 $twig->parsefile($conf_file);
 
-my @converters = $twig->root->children( 'converter' );
-my %convert = ();
+my @converters = $twig->root->children('converter');
+my %convert    = ();
 
 for my $conv (@converters) {
-    my $name = $conv->first_child_text('name');
+    my $name   = $conv->first_child_text('name');
     my $parser = $conv->first_child_text('parser');
     my $writer = $conv->first_child_text('writer');
-    
+
     $convert{$name} = { parser => $parser, writer => $writer };
 }
-
 
 my $input = Gwybodaeth::Read->new();
 
 my $len;
-if (-f $data) {
+if ( -f $data ) {
     $len = $input->get_file_data($data);
-} else {
+}
+else {
     $len = $input->get_url_data($data);
 }
 
-die "Empty file." if ($len < 1);
+croak "Empty file." if ( $len < 1 );
 
 my $mapping = Gwybodaeth::Read->new();
 
-if (-f $map) {
+if ( -f $map ) {
     $len = $mapping->get_file_data($map);
-} else {
+}
+else {
     $len = $mapping->get_url_data($map);
 }
 
-die "Empty site." if ($len < 1);
+croak "Empty site." if ( $len < 1 );
 
-my @data = @{$mapping->get_input_data};
+my @data = @{ $mapping->get_input_data };
 
 my $map_parser = Gwybodaeth::Parsers::N3->new();
 
@@ -83,22 +86,24 @@ my $parser;
 my $writer;
 my $write_mod;
 my $parse_mod;
-if (defined($convert{$in_type})) {
+if ( defined( $convert{$in_type} ) ) {
     $write_mod = $convert{$in_type}->{'writer'};
     $parse_mod = $convert{$in_type}->{'parser'};
     eval {
-        (my $wpkg = $write_mod) =~ s!::!/!g;
-        (my $ppkg = $parse_mod) =~ s!::!/!g;
-        require "$wpkg.pm";
-        require "$ppkg.pm";
-        import $parse_mod; 
+        ( my $wpkg = $write_mod ) =~ s!::!/!gx;
+        ( my $ppkg = $parse_mod ) =~ s!::!/!gx;
+        require "$wpkg.pm";                        ## no critic
+        require "$ppkg.pm";                        ## no critic
+        import $parse_mod;
         import $write_mod;
-    };
+        1;
+    } or croak "Module loading failed: $!";
     $parser = $parse_mod->new();
     $writer = $write_mod->new();
-} else {
+}
+else {
     croak "$in_type is not defined in the config file";
 }
-my $parsed_data_ref = $parser->parse(@{ $input->get_input_data });
+my $parsed_data_ref = $parser->parse( @{ $input->get_input_data } );
 
-$writer->write_rdf($map_triples,$parsed_data_ref);
+$writer->write_rdf( $map_triples, $parsed_data_ref );

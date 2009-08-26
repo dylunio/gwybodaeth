@@ -5,7 +5,7 @@ use warnings;
 
 package Gwybodaeth;
 
-our $VERSION = "0.1";
+our $VERSION = "0.01";
 
 require Gwybodaeth::Write;
 require Gwybodaeth::Write::WriteFromCSV;
@@ -139,4 +139,9 @@ where Ex:$1 will be replaced by the content of the first column of the row.
 
 Iestyn Pryce, <imp25@cam.ac.uk>
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2009 Iestyn Pryce <imp25@cam.ac.uk>
+
+This library is free software; you can redistribute it and/or modify it under
+the terms of the BSD license.
