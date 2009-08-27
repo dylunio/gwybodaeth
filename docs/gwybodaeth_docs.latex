@@ -208,15 +208,15 @@ contain strings.
 
 Currently if the anchor is a word \texttt{gwybodaeth} will use the
 \verb!rdf:ID! syntax, otherwise it will use the \verb!rdf:about! syntax. In
-all cases \verb!rdf:resource! will refer to the anchor. The syntax for setting
-and referring to references is set out in table~\ref{tab:grammar}.
+all cases \verb!rdf:resource! will refer to the anchor. The syntax for
+setting and referring to references is set out in table~\ref{tab:grammar}.
 
-Due to the requirement for unique IDs we must avoid clashes. In order to do
-this a system of precedence has been put in place in the mapping file. A
-function has precedence over all the others which follow it in the file --- the
-lower in the file the function comes the lower its precedence. The result of
-this is that if any reference anchor is defined multiple times only the first
-one will appear in the output.
+Due to the requirement for unique IDs we must avoid clashes. In order to
+do this a system of precedence has been put in place in the mapping file. A
+function has precedence over all the others which follow it in the file ---
+the lower in the file the function comes the lower its precedence. The result
+of this is that if any reference anchor is defined multiple times only the
+first one will appear in the output.
 
 An example of where this precedence comes into action is with the data from
 figure \ref{fig:csv2} and with the map from figure \ref{fig:map3}. Here we
@@ -234,12 +234,12 @@ short supervisor block. This means that we have lost three pieces of information
 about Don Knuth when we RDFized the data.
 
 By having applying precedence to the mapping file the first function will be
-mapped to the whole file before the second function is mapped to the
-whole file. The first pass gives us a full Person block for each of Al Turing,
-Don Knuth and Marvin Minsky. The second pass gives us a short supervisor block
-for Grace Hopper as she has yet to be defined. Now we have all the information
-possible from the file according to the mapping used without any redefinitions
-of IDs as seen in fig~\ref{rdf:precedence}.
+mapped to the whole file before the second function is mapped to the whole
+file. The first pass gives us a full Person block for each of Al Turing,
+Don Knuth and Marvin Minsky. The second pass gives us a short supervisor
+block for Grace Hopper as she has yet to be defined. Now we have all the
+information possible from the file according to the mapping used without
+any redefinitions of IDs as seen in fig~\ref{rdf:precedence}.
 
 \begin{figure}[!h]
 { \small 
