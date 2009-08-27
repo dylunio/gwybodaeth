@@ -1,5 +1,8 @@
 use Module::Build;
 use IO::File;
+use File::Spec;
+
+my $root = File::Spec->rootdir;
 
 my $class = Module::Build->subclass(code => <<'EOC');
     sub process_conf_files {
@@ -30,13 +33,15 @@ my $build = $class->new(
                         'Test::More' => 0,
                         'Test::Output' => 0,
                         'Test::Exception' => 0,
+                        'Module::Build' => '>=0.26',
                       },
     configure_requires => {
                         'Module::Build' => '>=0.26',
                           },
     recursive_test_files => 1,
-    script_files => [ 'script/gwybodaeth', 'script/gwybodaeth.cgi' ],
-    install_path => { conf => '/etc/gwybodaeth' },
+    script_files => [ File::Spec->catfile('script','gwybodaeth'), 
+                      File::Spec->catfile('script','gwybodaeth.cgi') ],
+    install_path => { conf => File::Spec->catfile("$root",'etc','gwybodaeth') },
     dist_abstract => 'Scripts and classes for RDF-izing data',
     );
 

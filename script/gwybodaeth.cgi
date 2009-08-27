@@ -28,7 +28,8 @@ BEGIN {
 }
 
 # Load configuration
-my $conf_file = '/etc/gwybodaeth/gwybodaeth.conf';
+my $root = File::Spec->rootdir();
+my $conf_file = File::Spec->catfile("$root",'etc','gwybodaeth','gwybodaeth.conf');
 -e $conf_file or croak "you need a configuration file $conf_file: $!";
 
 my $twig = XML::Twig->new();
