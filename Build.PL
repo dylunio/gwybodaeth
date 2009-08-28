@@ -21,7 +21,7 @@ my $build = $class->new(
     license => 'bsd',
     dist_author => 'Iestyn Pryce, <imp25@cam.ac.uk>',
     requires => {
-                'perl' => '>= 5.8.0',
+                'perl' => '>= 5.6.0',
                 'XML::Twig' => '>=3.32',
                 'Text::CSV' => '>=1.10',
                 'Carp' => 0,

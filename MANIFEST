@@ -1,7 +1,7 @@
 AUTHORS
 Build.PL
 conf/gwybodaeth.conf
-docs/gwybodaeth_docs.latex
+docs/gwybodaeth_docs.latex  LaTeX user guide to be compiled with pdftex
 docs/vc
 docs/vc-git.awk
 docs/vc.tex
@@ -37,4 +37,3 @@ t/write.t
 t/write/writefromcsv.t
 t/write/writefromusgsxml.t
 t/write/writefromxml.t
-Makefile.PL
