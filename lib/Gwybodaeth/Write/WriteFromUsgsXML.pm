@@ -23,11 +23,18 @@ feeds.
 This module is subclassed from Gwybodaeth::Write::WriteFromXML and applies
 mapping to USGS XML feed data.
 
+=over
 =cut
-
 use base qw(Gwybodaeth::Write::WriteFromXML);
 
 use Carp qw(croak);
+
+=item write_rdf($mapping_data, $data)
+
+Applies $mapping_data to the array reference $data outputting RDF/XML.
+$mapping_data is expected to be the output form Parsers::N3.
+
+=cut
 
 sub write_rdf {
     ref(my $self = shift) or croak "instance variable needed";

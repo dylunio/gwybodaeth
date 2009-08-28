@@ -19,6 +19,7 @@ Write::Write - Main class for applying maps to data.
 
 This class is intended to be subclassed thus has no public methods.
 
+=over
 =cut
 
 use Carp qw(croak);
@@ -28,6 +29,12 @@ use XML::Twig;
 binmode( STDOUT, ':utf8' );
 binmode( STDERR, ':utf8' );
 
+=item new()
+
+Returns an instance of WriteFromXML;
+
+=cut
+ 
 sub new {
     my $class = shift;
     my $self = { ids => {}, Data => ""};
@@ -425,6 +432,7 @@ sub _set_datatype {
 }
 1;
 __END__
+=back
 
 =head1 AUTHOR
 

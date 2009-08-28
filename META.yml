@@ -6,7 +6,7 @@ author:
 abstract: Scripts and classes for RDF-izing data
 license: bsd
 resources:
-  license: ~
+  license: http://www.opensource.org/licenses/bsd-license.php
 configure_requires:
   Module::Build: '>=0.26'
 requires:

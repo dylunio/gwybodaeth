@@ -17,6 +17,12 @@ Parsers::XML - Base class for parsing XML data.
 
 This module is a base class for XML parsing, and is intended to be subclassed.
 
+=over
+
+=item new()
+
+Returns an instance of the Gwybodaeth::Parsers::XML class;
+
 =cut
 
 sub new {
@@ -25,14 +31,9 @@ sub new {
     bless $self, $class;
     return $self;
 }
-
-sub parse {
-    my $self = shift;
-
-    return 1;
-}
 1;
 __END__
+=back
 
 head1 AUTHOR
 

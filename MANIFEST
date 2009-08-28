@@ -37,3 +37,4 @@ t/write.t
 t/write/writefromcsv.t
 t/write/writefromusgsxml.t
 t/write/writefromxml.t
+Makefile.PL
