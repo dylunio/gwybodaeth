@@ -51,6 +51,8 @@ for my $conv (@converters) {
 
 my $cgi = CGI->new();
 
+print $cgi->header;
+
 my $data = $cgi->param('src');
 my $map = $cgi->param('map');
 my $in_type = $cgi->param('in');
@@ -114,6 +116,7 @@ if (defined($convert{$in_type})) {
         require "$ppkg.pm";                     ## no critic
         import $parse_mod; 
         import $write_mod;
+        1;
     }or croak "Module loading failed: $!";
     $parser = $parse_mod->new();
     $writer = $write_mod->new();

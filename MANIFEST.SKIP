@@ -60,6 +60,7 @@ countryInfo.xml$
 \.test$
 \.rdf$
 \.lst$
+^Debian_CPANTS.txt$
 
 # Avoid latex cruft
 \.loc$

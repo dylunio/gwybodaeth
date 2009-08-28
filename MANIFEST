@@ -1,4 +1,3 @@
-add_ack
 AUTHORS
 Build.PL
 Changes
@@ -27,13 +26,16 @@ META.yml
 README.txt
 script/gwybodaeth
 script/gwybodaeth.cgi
+t/critic.t
 t/escape.t
 t/kwalitee.t
+t/minimum_version.t
 t/namespacemanager.t
 t/parsers/csv.t
 t/parsers/geonamesxml.t
 t/parsers/n3.t
 t/parsers/xml.t
+t/perlcriticrc
 t/pod.t
 t/pod_coverage.t
 t/read.t
