@@ -1,7 +1,9 @@
+add_ack
 AUTHORS
 Build.PL
+Changes
 conf/gwybodaeth.conf
-docs/gwybodaeth_docs.latex  LaTeX user guide to be compiled with pdftex
+docs/gwybodaeth_docs.latex
 docs/vc
 docs/vc-git.awk
 docs/vc.tex
@@ -22,14 +24,18 @@ lib/Gwybodaeth/Write/WriteFromXML.pm
 LICENSE
 MANIFEST			This list of files
 META.yml
+README.txt
 script/gwybodaeth
 script/gwybodaeth.cgi
 t/escape.t
+t/kwalitee.t
 t/namespacemanager.t
 t/parsers/csv.t
 t/parsers/geonamesxml.t
 t/parsers/n3.t
 t/parsers/xml.t
+t/pod.t
+t/pod_coverage.t
 t/read.t
 t/tokenize.t
 t/triples.t
