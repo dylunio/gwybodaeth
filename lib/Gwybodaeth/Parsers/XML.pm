@@ -39,6 +39,10 @@ head1 AUTHOR
 
 Iestyn Pryce, <imp25@cam.ac.uk>
 
+=head1 ACKNOWLEDGEMENTS
+
+I'd like to thank the Ensemble project (www.ensemble.ac.uk) for funding me to work on this project in the summer of 2009.
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (C) 2009 Iestyn Pryce <imp25@cam.ac.uk>

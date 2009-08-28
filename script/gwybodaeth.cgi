@@ -15,18 +15,19 @@ use Gwybodaeth::Parsers::N3;
 use Gwybodaeth::Read;
 
 BEGIN {
-    sub handle_errors {
-        my $msg = shift;
-        if ($msg =~ m!Empty [map|source]!x) { $msg =~ s/at\s.+$//gx; }
-        my $q = new CGI;
-        print $q->start_html( "Problem" ),
-              $q->h1( "Problem" ),
-              $q->p( "Sorry, the following problem has occurred: " ),
-              $q->p( "$msg" ),
-              $q->end_html;
-        return 1;
-    }
     set_message(\&handle_errors);
+}
+
+sub handle_errors {
+    my $msg = shift;
+    if ($msg =~ m!Empty [map|source]!x) { $msg =~ s/at\s.+$//gx; }
+    my $q = new CGI;
+    print $q->start_html( "Problem" ),
+          $q->h1( "Problem" ),
+          $q->p( "Sorry, the following problem has occurred: " ),
+          $q->p( "$msg" ),
+          $q->end_html;
+    return 1;
 }
 
 # Load configuration
@@ -124,3 +125,24 @@ my $parsed_data_ref = $parser->parse(@{ $input->get_input_data });
 print $cgi->header('Content-type: application/rdf+xml');
 
 $writer->write_rdf($map_triples,$parsed_data_ref);
+__END__
+
+=head1 SEE ALSO
+
+L<Gwybodaeth>
+
+=head1 AUTHORS
+
+Iestyn Pryce, <imp25@cam.ac.uk>
+
+=head1 ACKNOWLEDGEMENTS
+
+I'd like to thank the Ensemble project (www.ensemble.ac.uk) for funding me to
+work on this project in the summer of 2009.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2009 Iestyn Pryce <imp25@cam.ac.uk>
+
+This library is free software; you can redistribute it and/or modify it under
+the terms of the BSD license.
