@@ -1,0 +1,4 @@
+severity  = 5 
+
+# Do not run the following as it doesn't work well with CGI scripts
+[-Subroutines::ProhibitNestedSubs]

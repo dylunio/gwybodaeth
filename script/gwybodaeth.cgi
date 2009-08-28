@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# Copyright (c) 2009, Iestyn Pryce <imp25@cam.ac.uk>
 
 use warnings;
 use strict;
@@ -16,13 +17,14 @@ use Gwybodaeth::Read;
 BEGIN {
     sub handle_errors {
         my $msg = shift;
-        if ($msg =~ m!Empty [map|source]!) { $msg =~ s/at\s.+$//g; }
+        if ($msg =~ m!Empty [map|source]!x) { $msg =~ s/at\s.+$//gx; }
         my $q = new CGI;
         print $q->start_html( "Problem" ),
               $q->h1( "Problem" ),
               $q->p( "Sorry, the following problem has occurred: " ),
               $q->p( "$msg" ),
               $q->end_html;
+        return 1;
     }
     set_message(\&handle_errors);
 }
@@ -64,8 +66,7 @@ if (@undef) {
     print $cgi->header('text/html'),
           $cgi->start_html('Problems'),
           $cgi->h3('Undefined Parameters'),
-          ("The following parameters need to be defined in the URL:
-            <br />\n<ul>\n$err\n</ul>"),
+          ("The following parameters need to be defined in the URL: <br />\n<ul>\n$err\n</ul>"),
           $cgi->end_html;
     exit 0;
 }
@@ -106,13 +107,13 @@ if (defined($convert{$in_type})) {
     $write_mod = $convert{$in_type}->{'writer'};
     $parse_mod = $convert{$in_type}->{'parser'};
     eval {
-        (my $wpkg = $write_mod) =~ s!::!/!g;
-        (my $ppkg = $parse_mod) =~ s!::!/!g;
-        require "$wpkg.pm";
-        require "$ppkg.pm";
+        (my $wpkg = $write_mod) =~ s!::!/!gx;
+        (my $ppkg = $parse_mod) =~ s!::!/!gx;
+        require "$wpkg.pm";                     ## no critic
+        require "$ppkg.pm";                     ## no critic
         import $parse_mod; 
         import $write_mod;
-    };
+    }or croak "Module loading failed: $!";
     $parser = $parse_mod->new();
     $writer = $write_mod->new();
 } else {
