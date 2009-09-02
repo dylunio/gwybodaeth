@@ -35,7 +35,7 @@ sub new {
 __END__
 =back
 
-head1 AUTHOR
+=head1 AUTHOR
 
 Iestyn Pryce, <imp25@cam.ac.uk>
 
