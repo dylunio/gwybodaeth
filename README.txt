@@ -1,4 +1,4 @@
-Gwybodaeth
+Gwybodaeth is Copyright (C) 2009, Iestyn Pryce <imp25 at cam dot ac dot uk>
 ----------
 
 A utility and set of classes to RDFize data.
@@ -13,8 +13,9 @@ INSTALLATION
     $ perl ./Build test
     $ sudo perl ./Build install
 
-COPYRIGHT
----------
+LICENSE INFORMATION
+-------------------
 
-Copyright 2009, Iestyn Pryce (imp25 at cam dot ac dot uk) Licensed under the BSD
-license.
+This library is free software; you can redistribute it and/or modify it
+under the terms of the BSD license. For details, see the full text of the
+license in the file LICENSE.
