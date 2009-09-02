@@ -8,6 +8,7 @@ use lib 'lib';
 
 use CGI::Carp qw(fatalsToBrowser set_message);
 use CGI;
+use URI::Escape;
 use XML::Twig;
 
 # gwybodaeth specific modules
@@ -53,8 +54,8 @@ my $cgi = CGI->new();
 
 print $cgi->header;
 
-my $data = $cgi->param('src');
-my $map = $cgi->param('map');
+my $data = uri_unescape($cgi->param('src'));
+my $map  = uri_unescape($cgi->param('map'));
 my $in_type = $cgi->param('in');
 
 my @undef;

@@ -16,5 +16,5 @@ INSTALLATION
 COPYRIGHT
 ---------
 
-Copyright 2009, Iestyn Pryce (im25 at cam dot ac dot uk) Licensed under the BSD
+Copyright 2009, Iestyn Pryce (imp25 at cam dot ac dot uk) Licensed under the BSD
 license.
