@@ -1,0 +1,12 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix :        <#> .
+
+[]    a       foaf:Person ;
+      foaf:mbox "Ex:$2" ;
+      foaf:name @Split(Ex:$1,",") ;
+      foaf:officeNumber "Ex:$3" ;
+      foaf:supervisor
+              [ a       foaf:Person ;
+                foaf:name "Ex:$4"
+              ] .

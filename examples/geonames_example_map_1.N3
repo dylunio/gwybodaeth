@@ -1,0 +1,13 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos# > .
+@prefix :        <#> .
+
+[]  a   rdf:Description ;
+    geo:location "Ex:$capital" ;
+    geo:location <Ex:$countryName> ;       
+    geo:latitude "Ex:$lat" ;
+    geo:longitude "Ex:$lng" .
+
+<Ex:$countryName>
+    a rdf:Description ;
+    geo:location "Ex:$countryName@en" ;
