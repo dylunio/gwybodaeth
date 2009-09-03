@@ -5,7 +5,7 @@ use warnings;
 
 package Gwybodaeth;
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 require Gwybodaeth::Write;
 require Gwybodaeth::Write::WriteFromCSV;

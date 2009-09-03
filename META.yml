@@ -1,6 +1,6 @@
 ---
 name: Gwybodaeth
-version: 0.01
+version: 0.02
 author:
   - 'Iestyn Pryce, <imp25@cam.ac.uk>'
 abstract: Scripts and classes for RDF-izing data
@@ -25,7 +25,7 @@ configure_requires:
 provides:
   Gwybodaeth:
     file: lib/Gwybodaeth.pm
-    version: 0.01
+    version: 0.02
   Gwybodaeth::Escape:
     file: lib/Gwybodaeth/Escape.pm
   Gwybodaeth::NamespaceManager:
