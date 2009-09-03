@@ -52,7 +52,7 @@ for my $conv (@converters) {
 
 my $cgi = CGI->new();
 
-print $cgi->header;
+$CGI::POST_MAX = 1024 * 5000;
 
 my $data = uri_unescape($cgi->param('src'));
 my $map  = uri_unescape($cgi->param('map'));
@@ -64,6 +64,7 @@ for ('src', 'map', 'in') {
         push @undef, $_;
     }
 }
+
 if (@undef) {
     @undef = map { "<li>$_</li>" }  @undef;
     my $err = join("\n", @undef);
@@ -74,7 +75,6 @@ if (@undef) {
           $cgi->end_html;
     exit 0;
 }
-
 
 my $input = Gwybodaeth::Read->new();
 
