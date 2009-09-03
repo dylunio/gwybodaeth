@@ -64,7 +64,7 @@ sub get_file_data {
 
     if (fileno($file)) { # Check if its a file handle
         $fh = $file;
-    } else {             # If it's just a file open a file handle
+    } else {             # If it's just a file name open a file handle
         # Return if file doesn't exist
         unless ( -e $file ) { return 0 };
 
