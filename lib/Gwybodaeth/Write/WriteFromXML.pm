@@ -57,6 +57,10 @@ sub write_rdf {
     my $triples = $triple_data->[0]; 
     my $functions = $triple_data->[1];
 
+    # Check that the data is an XML Twig
+    eval {$data->isa('XML::Twig')} 
+        or croak "The input data is not XML";
+
     $self->_write_meta_data();
     for my $child ($data->root->children) {
         $self->_write_triples($child, $triple_data);

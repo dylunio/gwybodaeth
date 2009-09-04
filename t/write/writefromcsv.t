@@ -7,6 +7,7 @@ use lib '../../lib';
 
 use Test::More qw{no_plan};
 use Test::Output;
+use Test::Exception;
 
 use Gwybodaeth::Parsers::CSV;
 use Gwybodaeth::Parsers::N3;
@@ -148,3 +149,24 @@ sub write_test_4 {
 }
 
 stdout_is(\&write_test_4, $str, '@lang grammar');
+
+# Test crufty input
+
+$csv_write = $map_parse = $csv_parse = undef;
+$csv_write = Gwybodaeth::Write::WriteFromCSV->new();
+$csv_parse = Gwybodaeth::Parsers::CSV->new();
+
+my $xml_block = <<'EOF';
+<?xml version="1.0"?>
+<rdf:RDF>
+<foaf:Person>
+<foaf:name>Plato</foaf:name>
+</foaf:Person>
+</rdf:RDF>
+EOF
+
+my @xml_array = split /\n/, $xml_block;
+
+ok(sub { $csv_write->write_rdf($map_parse->parse(@map),
+                                   $csv_parse->parse(@xml_array)); },
+       'cruft test 1 (XML)' );

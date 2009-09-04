@@ -5,6 +5,7 @@ use warnings;
 
 use Test::More qw{no_plan};
 use Test::Output;
+use Test::Exception;
 
 use Gwybodaeth::Parsers::N3;
 use Gwybodaeth::Parsers::GeoNamesXML;
@@ -48,3 +49,19 @@ sub write_test_1 {
 }
 
 stdout_is(\&write_test_1, $expected, 'simple feed');
+
+# Tests with some dodgy input
+
+my $csv = [ [ 'NAME', 'YEAR', 'COUNTRY'],
+            [ 'Plato', '400 BC', 'Greece'],
+            [ 'Nietzsche', '1889 AD', 'Switzerland' ],
+          ];
+
+$xml_parse = $usgs = undef;
+$usgs = Gwybodaeth::Write::WriteFromXML->new();
+$xml_parse = Gwybodaeth::Parsers::GeoNamesXML->new();
+
+my $twig = $xml_parse->parse( @{ $csv } );
+
+throws_ok ( sub { $usgs->write_rdf($map_parse->parse(@map), $twig) }, 
+            qr/The input data is not XML/, 'csv test' );

@@ -19,14 +19,39 @@ BEGIN {
     set_message(\&handle_errors);
 }
 
+my $CSS=<<'EOF';
+<!--
+body {
+    font-family: 'DejaVu Sans Condensed', Helevetica, sans-serif;
+    font-size: 11pt;
+    background-color: #fff;
+    }
+
+#problem {
+    border: solid;
+    border-width: 1px 1px 1px 1px;
+    padding: 0px 15px 0px;
+    background-color: #ffddee;
+    margin: 5px 5px 5px 5px;
+    }
+-->
+EOF
+
 sub handle_errors {
     my $msg = shift;
-    if ($msg =~ m!Empty [map|source]!x) { $msg =~ s/at\s.+$//gx; }
+    if ($msg =~ m!Empty [map|source]|The input data is not XML!x) { 
+        print STDERR "FOOO!";
+        $msg =~ s/at\s.+$//gx; 
+    }
+    $msg =~ s!\n!<br />!x;
+    $msg =~ s/at\s.+$//gx; 
     my $q = new CGI;
-    print $q->start_html( "Problem" ),
-          $q->h1( "Problem" ),
+    print $q->start_html( -title=>"Problem", -style=>{-code=>$CSS}),
+          $q->h1( "Problem" )."\n",
+          $q->start_div({-id=>'problem'}) . "\n",
           $q->p( "Sorry, the following problem has occurred: " ),
-          $q->p( "$msg" ),
+          $q->p( "$msg" ) ."\n",
+          $q->end_div(),
           $q->end_html;
     return 1;
 }
@@ -103,6 +128,8 @@ my $map_parser = Gwybodaeth::Parsers::N3->new();
 
 my $map_triples = $map_parser->parse(@data);
 
+unless ($map_triples) { croak 'Error while parsing map data'; }
+
 my $parser;
 my $writer;
 my $write_mod;
@@ -125,6 +152,8 @@ if (defined($convert{$in_type})) {
     croak "$in_type is not defined in the config file";
 }
 my $parsed_data_ref = $parser->parse(@{ $input->get_input_data });
+
+unless ($parsed_data_ref) { croak 'Error while parsing source data'; }
 
 print $cgi->header('Content-type: application/rdf+xml');
 

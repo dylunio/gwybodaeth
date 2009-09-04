@@ -6,6 +6,7 @@ use warnings;
 use lib '../../lib';
 
 use Test::More qw(no_plan);
+use Test::Exception;
 
 BEGIN { use_ok( 'Gwybodaeth::Parsers::CSV' ); }
 
@@ -61,3 +62,20 @@ $structure = [ [ 'We', 'like, to', 'quote' ] ];
 
 is_deeply($csv->parse(@data), $structure, 'single quote field quoting');
 $csv->{quote_char} = '"';
+
+# Test for cruft input
+
+my $xml = <<'EOF';
+<?xml version="1.0"?>
+<rdf:RDF>
+<foaf:Person>
+<foaf:name>Plato</foaf:name>
+</foaf:Person>
+</rdf:RDF>
+EOF
+
+my @xml = split /\n/, $xml;
+
+throws_ok(sub { $csv->parse(@xml); }, 
+        qr/unable to parse/, 
+        'cruft test 1 (XML)');

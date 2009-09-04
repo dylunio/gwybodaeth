@@ -66,7 +66,8 @@ sub parse {
             my @fields = $csv->fields();
             $rows[$i++] = \@fields;
         } else {
-            croak "unable to parse row: " . $csv->error_input;
+            croak "unable to parse row: " . $csv->error_input . "\n".
+                  "Are you sure this is CSV data?";
         }
     }
 

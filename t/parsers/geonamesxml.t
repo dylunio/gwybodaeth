@@ -32,3 +32,13 @@ $twig = $gnx->parse(@{ $cruft });
 
 is( $twig, 0, 'returns 0 on cruft' );
 
+# More garbage testing with some CSV
+
+my $csv = [ [ 'NAME', 'YEAR', 'COUNTRY'],
+            [ 'Plato', '400 BC', 'Greece'],
+            [ 'Nietzsche', '1889 AD', 'Switzerland' ],
+          ];
+
+$twig = $gnx->parse( @{ $csv } );
+
+is( $twig, 0, 'returns 0 on CSV');
