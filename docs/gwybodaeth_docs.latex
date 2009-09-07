@@ -40,6 +40,8 @@ Revision: \VCRevision
 \tableofcontents
 \listoftables
 
+\newpage 
+
 \section{Usage}
 
 \textbf{gwybodaeth} is a set of Perl classes for conversion of data into RDF. It can be either used from a command line tool or via a CGI web
@@ -66,12 +68,12 @@ or path to a file:
 \end{verbatim}
 
 \subsection{CGI}
-In the URL \verb!src! is used to assign the data source and \verb!map! is used
-to assign the map source. The CGI script currently only works with data and maps
+In the URL \verb!src! is used to assign the data source, \verb!map! is used
+to assign the map source, and \verb!in! is used to assign the input type. The CGI script currently only works with data and maps
 which are available via HTTP.
 \\
 \\
-\noindent\nolinkurl{http://127.0.0.1/~imp25/cgi-bin/gwybodaeth.cgi?src=http://rdf123.umbc.edu/csv/office1.csv&map=http://rdf123.umbc.edu/map/officeMap1.N3}
+\noindent\nolinkurl{http://127.0.0.1/~imp25/cgi-bin/gwybodaeth.cgi?src=http://rdf123.umbc.edu/csv/office1.csv&map=http://rdf123.umbc.edu/map/officeMap1.N3&in=csv}
 \\
 \\
 With the use of the CGI script it is important to remember to escape characters
@@ -88,22 +90,33 @@ delimiters. For example use
 \section{Functionality}
 \subsection{Input}
 The input formats currently supported are XML from
-GeoNames\footnote{\url{http://www.geonames.org/}} and CSV.
+GeoNames\footnote{\url{http://www.geonames.org/}} and the
+USGS\footnote{\url{http://www.usgs.gov/}}, and CSV.
 
 \subsubsection{CSV}
-For CSV the use of `start row, \emph{num}' within the CSV file is supported
-if you wish to start reading the data from a row other than the second
-row\footnote{The first row is always skipped as it's assumed that it contains
-column headings}.
+For CSV the use of `start row, \emph{num}' and `end row, \emph{num}' within
+the CSV file is supported if you wish to start reading the data from a row
+other than the second row\footnote{The first row is always skipped as it's
+assumed that it contains column headings}, and want to finish reading on a row
+other than the last row. This allows smaller blocks of data to be RDFized from
+larger files. 
 
 \subsubsection{GeoNames XML}
+The GeoNames XML input is expected to contain blocks of information relating to
+countries, areas etc. The mapping assumes that every child block of the root
+element is a data block to be parsed and mapped. It should probably work on
+XML data inputs from sources other than GeoNames.
+
+\subsubsection{USGS XML}
+This is basically the same as the GeoNames XML input parser however it only
+treats children of the root element with the \emph{entry} tag as data blocks.
 
 \subsection{Maps}
 The mapping files should be based on
 N3\footnote{\url{http://www.w3.org/DesignIssues/Notation3.html}}. The mapping
 syntax is generally the same for both CSV and XML input. The major difference
 is what the \verb!var! in \verb!Ex:$var! referes to. For CSV \verb!var! refers
-to the row's column number (starting from 1); for XML \verb!var!  referes to
+to the row's column number (starting from 1); for XML \verb!var! referes to
 a XML tag within the block being converted.
 
 An example of the currently supported grammar for CSV conversion is shown
@@ -176,8 +189,7 @@ An explanation of a number of the specific mapping grammar is in Table
 \hline
 \multicolumn{2}{|r|}{Input: All}\\
 \hline
-\verb!"Ex:$var"!&The value of the column \emph{num} is placed here as the
-object.\\
+\verb!"Ex:$var"!&The value of the data described by \emph{var} is placed here as the object.\\
 \hline
 \verb!<Ex:$var>!&This is a function. On its own line it defines the following
 block as the contents of the function with \verb!rdf:ID! or \verb!rdf:about!. 
@@ -190,8 +202,6 @@ As an object it references the defined function with \verb!rdf:resource!.\\
 @Split(\emph{field},``\emph{delimiter}") & Splits up \emph{field} on the
 \emph{delimiter} so that one field can be RDFized into many
 predicate$\rightarrow$object pairs.\\ 
-\hline
-\multicolumn{2}{|r|}{Input: CSV}\\
 \hline
 @If(\emph{condition},\emph{true},\emph{false}) & Evaluates \emph{condition} and
 returns \emph{true} if the condition is true, otherwise it returns \emph{false}. \\
@@ -209,7 +219,7 @@ contain strings.
 Currently if the anchor is a word \texttt{gwybodaeth} will use the
 \verb!rdf:ID! syntax, otherwise it will use the \verb!rdf:about! syntax. In
 all cases \verb!rdf:resource! will refer to the anchor. The syntax for
-setting and referring to references is set out in table~\ref{tab:grammar}.
+setting and referring to references is set out in Table~\ref{tab:grammar}.
 
 Due to the requirement for unique IDs we must avoid clashes. In order to
 do this a system of precedence has been put in place in the mapping file. A
@@ -219,13 +229,13 @@ of this is that if any reference anchor is defined multiple times only the
 first one will appear in the output.
 
 An example of where this precedence comes into action is with the data from
-figure \ref{fig:csv2} and with the map from figure \ref{fig:map3}. Here we
+Figure \ref{fig:csv2} and with the map from Figure \ref{fig:map3}. Here we
 wish to have a block of information about each member of an office, with the
 block having a reference anchor based on the person's name. We want to refer
 to the person's supervisor using a reference. If we ran the first data line
 through both mapping functions we would end up with an RDF block describing
 the Al Turing and a short block describing Don Knuth as the supervisor as
-seen in fig~\ref{rdf:firstline}. Problems arise however when we parse the
+seen in Fig~\ref{rdf:firstline}. Problems arise however when we parse the
 next line of data. You would expect a RDF block describing Don Knuth and a
 short block describing Grace Hopper as a supervisor. However as we are only
 allowing one instance of each ID we will only get the second block about
@@ -239,7 +249,7 @@ file. The first pass gives us a full Person block for each of Al Turing,
 Don Knuth and Marvin Minsky. The second pass gives us a short supervisor
 block for Grace Hopper as she has yet to be defined. Now we have all the
 information possible from the file according to the mapping used without
-any redefinitions of IDs as seen in fig~\ref{rdf:precedence}.
+any redefinitions of IDs as seen in Fig~\ref{rdf:precedence}.
 
 \begin{figure}[!h]
 { \small 
@@ -291,8 +301,8 @@ Marvin Minsky,mlm@umbc.edu,ITE442,Grace Hopper
   </foaf:Person>
 \end{Verbatim}
 }
-\caption{RDF/XML output of the first line of the data from fig~\ref{fig:csv2}
-with the map shown in fig~\ref{fig:map3} without precedence}
+\caption{RDF/XML output of the first line of the data from Fig~\ref{fig:csv2}
+with the map shown in Fig~\ref{fig:map3} without precedence}
 \label{rdf:firstline} 
 \end{figure}
 
@@ -326,8 +336,8 @@ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 </rdf:RDF>
 \end{Verbatim}
 }
-\caption{RDF/XML output of the data from fig~\ref{fig:csv2} and map from
-fig~\ref{fig:map3} using precedence}
+\caption{RDF/XML output of the data from Fig~\ref{fig:csv2} and map from
+Fig~\ref{fig:map3} using precedence}
 \label{rdf:precedence}
 \end{figure}
 
