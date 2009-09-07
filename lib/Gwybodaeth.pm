@@ -39,7 +39,7 @@ Gwybodaeth - a set of classes and scripts to RDF-ize data
 =head1 DESCRIPTION
 
 The gwybodaeth collection of classes and scripts are aimed to help in the
-RDF-izing of data. The modules provide an object orientated API and are
+RDFizing of data. The modules provide an object orientated API and are
 designed to be easily extended and customized.
 
 Gwybodaeth's main features are:
@@ -54,6 +54,11 @@ Ability to map data from an input into RDF.
 
 Extendible so that more more input data types can be handled while using
 gwybodaeth's mapping functionality.
+
+=item *
+
+Gwybodaeth can be used either as a command line script or as a CGI based web
+service.
 
 =back
 
@@ -73,7 +78,7 @@ A class which provides escaping functionality for RDF/XML output.
 
 A class which extracts and managed namespace information.
 
-=item L<Gwybodaeth::Parsers::*>
+=item C<Gwybodaeth::Parsers::*>
 
 Classes for parsing input data into data structures for use by the rest of
 gwybodaeth based programs.
@@ -95,10 +100,10 @@ A class which takes care of gwybodaeth's triples data structure.
 A class meant for subclassing to create bespoke map appliers for custom inputs.
 It contains most of the map application logic.
 
-=item L<Gwybodaeth::Write::*>
+=item C<Gwybodaeth::Write::*>
 
-Classes based on C<Gwybodaeth::Write> which offer map application and writing to
-different input types.
+Classes subclassed from C<Gwybodaeth::Write> or eachother which offer map
+application and writing to different input types.
 
 =back
 
@@ -120,6 +125,8 @@ gwybodaeth --source=http://ws.geonames.org/countryInfo?country=GB
 Maps are written in a dialect of N3 (L<http://www.w3.org/DesignIssues/Notation3>). The maps generally correspond
 to the maps in use by RDF123 (L<http://rdf123.umbc.edu/>).
 
+=head3 CSV
+
 This is an example of a simple mapping for a CSV file:
 
     @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -135,13 +142,50 @@ For every row of the CSV file it will create a triple:
 
 where Ex:$1 will be replaced by the content of the first column of the row.
 
+=head3 XML
+
+This is an example of a simple mapping for a XML file:
+
+    @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix :        <#> .
+
+    [] a rdf:Description ;
+       rdfs:seeAlso "Ex:$entity" .
+
+For every block of data in the XML file it will create a triple:
+
+    rdf:description => rdfs:seeAlso => Ex:$entity
+
+where Ex:$entity will be replaced by the content of the tag with the entity
+$entity.
+
+=head3 Syntax
+
+Gwybodaeth supports the following syntax in the mapping files:
+
+"Ex:$var"   The value of the data described by I<var> is placed here as the object.
+
+<Ex:$var>   This is a function. On its own line it defines the following block as the contents of the function with rdf:ID or rdf:about. As an object it references the defined function with rdf:resource.
+
+[ a ... ] . Define an inline function.
+
++           Allows for concatinanion within the field.
+
+@Split(field,"delimiter")
+            Splits up I<field> on the I<delimiter> so that one field can be RDFized into many predicate->object pairs.
+
+@If(condition,true,false)
+            Evaluates I<condition> and returns I<true> if the condition is
+true, otherwise it returns I<false>.
+
 =head1 AUTHORS
 
 Iestyn Pryce, <imp25@cam.ac.uk>
 
 =head1 ACKNOWLEDGEMENTS
 
-I'd like to thank the Ensemble project (www.ensemble.ac.uk) for funding me to work on this project in the summer of 2009.
+I'd like to thank the Ensemble project (L<www.ensemble.ac.uk>) for funding me to work on this project in the summer of 2009.
 
 =head1 COPYRIGHT AND LICENSE
 
