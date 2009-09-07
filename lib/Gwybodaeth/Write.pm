@@ -17,7 +17,7 @@ Write::Write - Main class for applying maps to data.
 
 =head1 DESCRIPTION
 
-This class is intended to be subclassed thus has no public methods.
+This class is intended to be subclassed thus has no public methods bar new().
 
 =over
 =cut
@@ -31,7 +31,7 @@ binmode( STDERR, ':utf8' );
 
 =item new()
 
-Returns an instance of WriteFromXML;
+Returns an instance of whichever class has subclassed Gwybodaeth::Write.;
 
 =cut
  
@@ -440,7 +440,7 @@ Iestyn Pryce, <imp25@cam.ac.uk>
 
 =head1 ACKNOWLEDGEMENTS
 
-I'd like to thank the Ensemble project (www.ensemble.ac.uk) for funding me to work on this project in the summer of 2009.
+I'd like to thank the Ensemble project (L<www.ensemble.ac.uk>) for funding me to work on this project in the summer of 2009.
 
 =head1 COPYRIGHT AND LICENSE
 
