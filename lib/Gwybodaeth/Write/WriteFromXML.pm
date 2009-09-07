@@ -54,6 +54,8 @@ sub write_rdf {
     my $triple_data = shift;
     my $data = shift;
 
+    $self->_check_data($triple_data,$data,'XML::Twig');
+
     my $triples = $triple_data->[0]; 
     my $functions = $triple_data->[1];
 

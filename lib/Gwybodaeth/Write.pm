@@ -43,6 +43,37 @@ sub new {
     return $self;
 }
 
+# Check cleanlisess of input data 
+sub _check_data {
+    my $self        = shift;
+    my $triple_data = shift;
+    my $data        = shift;
+    my $data_type   = shift;      # data type of $data;
+    
+    # Check $triple_data is the correct data type.
+    unless (ref($triple_data) eq 'ARRAY') { 
+        croak "expected array ref as first argument";
+    }
+
+    my $triples = ${ $triple_data }[0];
+    my $functions = ${ $triple_data }[1]; 
+
+    # Check that both array elements are the correct data types in 
+    # $triple_data.
+    unless (eval{ $triples->isa('Gwybodaeth::Triples') }) {
+        croak 'expected a Gwybodaeth::Triples object as first argument of array';
+    }
+    unless (ref($functions) eq 'HASH') {
+        croak 'expected a hash ref as second argument of array';
+    }
+    
+    # Check $data is in the correct data type.
+    unless (ref($data) eq $data_type) {
+        croak "expected $data_type in the second array ref";
+    }
+    return 1;
+}
+
 sub _print2str {
     my $self = shift;
     my $str = shift;

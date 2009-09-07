@@ -55,6 +55,9 @@ sub write_rdf {
     my $triple_data = shift;
     my $data = shift;
 
+    # Check clenliness of input data types 
+    $self->_check_data($triple_data,$data,'ARRAY');
+
     my $triples = ${ $triple_data }[0];
     my $functions = ${ $triple_data }[1]; 
 

@@ -63,5 +63,37 @@ $xml_parse = Gwybodaeth::Parsers::GeoNamesXML->new();
 
 my $twig = $xml_parse->parse( @{ $csv } );
 
-throws_ok ( sub { $usgs->write_rdf($map_parse->parse(@map), $twig) }, 
-            qr/The input data is not XML/, 'csv test' );
+throws_ok { $usgs->write_rdf($map_parse->parse(@map), $twig) } 
+          qr/expected XML::Twig in the second array ref/, 'csv test';
+
+# Pass two scalars, not array refs;
+my($string1,$string2) = (0,0);
+
+throws_ok {$usgs->write_rdf($string1,$string2)}
+        qr/expected array ref as first argument/,
+        'scalar input (write_rdf args)';
+
+# Set the first array ref as two scalars, not references to
+# Gwybodaeth::Triple and a Hash
+
+my $array_ref1 = [0,0];
+
+throws_ok {$usgs->write_rdf($array_ref1,$string2)}
+        qr/expected a Gwybodaeth::Triples object as first argument of array/,
+        'dud array input 1 (write_rdf 1st arg)';
+
+# Set the first array ref to a Gwybodaeth::Triples (correct)
+# and a scalar (incorrect).
+my$array_ref2 = [Gwybodaeth::Triples->new(),0];
+
+throws_ok {$usgs->write_rdf($array_ref2, $string2)}
+        qr/expected a hash ref as second argument of array/,
+        'dud array intput 2 (write_rdf 1st arg)';
+
+# Set the first array ref correctly and the second to a scalar.
+
+my $array_ref3 = [Gwybodaeth::Triples->new(),{}];
+
+throws_ok {$usgs->write_rdf($array_ref3, $string2)}
+        qr/expected XML::Twig in the second array ref/,
+        'dud array input 3 (write_rdf 2nd arg)';

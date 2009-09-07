@@ -199,3 +199,38 @@ my @xml_array = split /\n/, $xml_block;
 ok(sub { $csv_write->write_rdf($map_parse->parse(@map),
                                    $csv_parse->parse(@xml_array)); },
        'cruft test 1 (XML)' );
+
+# Test for passing incorrect data structures to write_rdf
+$csv_write = undef;
+$csv_write = Gwybodaeth::Write::WriteFromCSV->new();
+
+# Pass two strings, not two array refs;
+my($string1,$string2) = (0,0);
+
+throws_ok {$csv_write->write_rdf($string1, $string2)} 
+        qr/expected array ref as first argument/, 
+        'scalar input (write_rdf args)';
+
+# Set the first array ref as two scalars, not references to
+# Gwybodaeth::Triple and a HASH.
+my $array_ref1 = [0,0];
+
+throws_ok {$csv_write->write_rdf($array_ref1, $string2)}
+        qr/expected a Gwybodaeth::Triples object as first argument of array/,
+        'dud array input 1 (write_rdf 1st arg)';
+
+# Set the first array ref to a Gwybodaeth::Triples (correct)
+# and a scalar (incorrect).
+my$array_ref2 = [Gwybodaeth::Triples->new(),0];
+
+throws_ok {$csv_write->write_rdf($array_ref2, $string2)}
+        qr/expected a hash ref as second argument of array/,
+        'dud array intput 2 (write_rdf 1st arg)';
+
+# Set the first array ref correctly and the second to a scalar.
+
+my $array_ref3 = [Gwybodaeth::Triples->new(),{}];
+
+throws_ok {$csv_write->write_rdf($array_ref3, $string2)}
+        qr/expected ARRAY in the second array ref/,
+        'dud array input 3 (write_rdf 2nd arg)';
