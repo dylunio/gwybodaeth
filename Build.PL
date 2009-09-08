@@ -28,6 +28,7 @@ my $build = $class->new(
                 'LWP' => 0,
                 'CGI' => 0,
                 'CGI::Carp' => 0,
+                'Tie::InsertOrderHash' => 0,
                 },
     build_requires => {
                         'Test::More' => 0,

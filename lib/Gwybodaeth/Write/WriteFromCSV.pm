@@ -55,7 +55,7 @@ sub write_rdf {
     my $triple_data = shift;
     my $data = shift;
 
-    # Check clenliness of input data types 
+    # Check cleanliness of input data types 
     $self->_check_data($triple_data,$data,'ARRAY');
 
     my $triples = ${ $triple_data }[0];
@@ -90,8 +90,13 @@ sub write_rdf {
     for my $row (@pure_data) {
         $self->_really_write_triples($row,$triples);
     }
+
     my %ids;
-    for my $key (reverse keys %{ $functions }) {
+
+    # The %functions hash is tied to InsertOrderHash so the keys will be
+    # given in the order they entered the hash. This gives the correct
+    # precedence ordering. 
+    for my $key ( keys %{ $functions }) {
         for my $row (@pure_data) {
             my $id = $self->_extract_field($row,$key);
             next if (exists $ids{$id});

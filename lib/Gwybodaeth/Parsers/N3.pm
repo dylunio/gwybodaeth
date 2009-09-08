@@ -30,6 +30,7 @@ This module converts N3 data into a data structure.
 =cut
 
 use Carp qw(croak);
+use Tie::InsertOrderHash;
 
 =item new()
 
@@ -39,7 +40,9 @@ Returns an instance of the N3 class.
 
 sub new {
     my $class = shift;
-    my $self = { triples => Gwybodaeth::Triples->new(), functions => {} };
+    my $self = { triples => Gwybodaeth::Triples->new() };
+    tie my %func => 'Tie::InsertOrderHash';
+    $self->{functions} = \%func;
     bless $self, $class;
     return $self;
 }
