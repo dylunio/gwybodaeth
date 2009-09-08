@@ -43,7 +43,7 @@ sub new {
     return $self;
 }
 
-# Check cleanlisess of input data 
+# Check cleanliness of input data 
 sub _check_data {
     my $self        = shift;
     my $triple_data = shift;
