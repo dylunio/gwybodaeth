@@ -179,6 +179,74 @@ Gwybodaeth supports the following syntax in the mapping files:
             Evaluates I<condition> and returns I<true> if the condition is
 true, otherwise it returns I<false>.
 
+=head3 Precedence
+
+In its mapping files Gwybodaeth uses a concept of precedence to ease cross
+referencing within an RDF document.
+
+If you have data such as:
+
+    Philosopher,School,Disciple
+    Socrates,Socratic Method,Plato
+    Plato,Platonism,Aristotle
+
+We would like to create an RDF of this data, where by the philosophers are the
+main blocks of data. We'd also like to link any person listed in the
+I<Disciple> column to any block of information created by their presence in the
+I<Philosopher> column. If they only exist in the I<Disciple> column (such as
+Aristotle in the above example) then a short information stub should be created
+for them.
+
+To do this a map needs to be created which firstly goes through each row of the
+data setting up a I<Person> data block with a reference to a person in for the
+I<disciple> element. After this is done the data should be parsed with another
+mapping funcion of lesser precedense than they first which gives a stub RDF
+block for any person referenced who was not listed as a I<Philosopher>.
+
+The following example map uses a fictional I<phil> ontology for philosophers.
+
+    @prefix phil:   <http://www.example.org/phil#> .
+    @prefix :       <#> .
+
+    <Ex:$1>
+        a   phil:Person ;
+        phil:name       "Ex:$1" ;
+        phil:school     "Ex:$2" ;
+        phil:disciple   <Ex:$3> .
+
+    <Ex:$3>
+        a phil:Person ;
+        phil:name       "Ex:$3" .
+
+After the ontologies are defined in the @prefix lines the first block describes
+each row of the data, and notes that there is a block of data with the name
+given by Ex:$1 i.e. 'Socrates' for the first row. Following this it will run
+through the data applying the second mapping block to the data. It however will
+only create a new block with the name given by Ex:$3 if the same name hasn't
+appeared already to describe a block in the RDF.
+
+The above data and map produce the following RDF/XML:
+
+    <?xml version="1.0"?>
+    <rdf:RDF xmlns:phil="http://www.example.org/phil#">
+    <phil:Person rdf:about="#Socrates">
+        <phil:name>Socrates</phil:name>
+        <phil:school>Socratic Method</phil:school>
+        <phil:disciple rdf:resource="#Plato"/>
+    </phil:Person>
+    <phil:Person rdf:about="#Plato">
+        <phil:name>Plato</phil:name>
+        <phil:school>Platonism</phil:school>
+        <phil:disciple rdf:resource="#Aristotle"/>
+    </phil:Person>
+    <phil:Person rdf:about="#Aristotle">
+        <phil:name>Aristotle</phil:name>
+    </phil:Person>
+    </rdf:RDF>
+
+Here we see two full data blocks describing Socrates and Plato as expected and
+just a stub block describing Aristotle.
+ 
 =head1 AUTHORS
 
 Iestyn Pryce, <imp25@cam.ac.uk>
