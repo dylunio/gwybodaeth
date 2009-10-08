@@ -3,6 +3,7 @@ Gwybodaeth is Copyright (C) 2009, Iestyn Pryce <imp25 at cam dot ac dot uk>
 
 A utility and set of classes to RDFize data.
 
+0.02 released on Thu Oct 08, 2009
 0.01 released on Fri Aug 28, 2009
 
 INSTALLATION
