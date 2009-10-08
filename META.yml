@@ -7,11 +7,8 @@ abstract: Scripts and classes for RDF-izing data
 license: bsd
 resources:
   license: http://www.opensource.org/licenses/bsd-license.php
-build_requires:
+configure_requires:
   Module::Build: '>=0.26'
-  Test::Exception: 0
-  Test::More: 0
-  Test::Output: 0
 requires:
   CGI: 0
   CGI::Carp: 0
@@ -20,9 +17,12 @@ requires:
   Text::CSV: '>=1.10'
   Tie::InsertOrderHash: 0
   XML::Twig: '>=3.32'
-  perl: '>= 5.6.0'
-configure_requires:
+  perl: '>= 5.8.0'
+build_requires:
   Module::Build: '>=0.26'
+  Test::Exception: 0
+  Test::More: 0
+  Test::Output: 0
 provides:
   Gwybodaeth:
     file: lib/Gwybodaeth.pm
@@ -53,7 +53,7 @@ provides:
     file: lib/Gwybodaeth/Write/WriteFromUsgsXML.pm
   Gwybodaeth::Write::WriteFromXML:
     file: lib/Gwybodaeth/Write/WriteFromXML.pm
-generated_by: Module::Build version 0.35
+generated_by: Module::Build version 0.32
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
